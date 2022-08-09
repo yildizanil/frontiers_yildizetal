@@ -17,5 +17,5 @@ class ScalarEmulators:
         self.output = Simulations(self.name).curate_scalars(threshold=h_threshold, loc_x=loc_x, loc_y=loc_y)
         
     def emulate_scalar(self, scalar):
-        model = robustgasp.rgasp(design=self.input, response=self.output[scalar])
+        model = robustgasp.rgasp(design=self.input.to_numpy(), response=self.output[scalar].to_numpy())
         return (model)
