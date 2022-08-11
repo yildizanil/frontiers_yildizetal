@@ -4,11 +4,14 @@ import numpy as np
 import rasterio
 import yaml
 from yaml.loader import SafeLoader
+import pkg_resources
 
 class Simulations:
     def __init__(self, name:str):
         self.name = name
-        with open(r'docs/download_links.yml') as f:
+        path = 'files/download_links.yml'
+        filepath = pkg_resources.resource_filename(__name__, path)
+        with open(filepath) as f:
             download_links = yaml.load(f, Loader=SafeLoader)
         self.links = download_links[self.name]
 
