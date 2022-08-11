@@ -41,7 +41,7 @@ class Simulations:
         return da
     
     def calc_dv(self, threshold:float):
-        with rasterio.open(self.links['hmax']) as src:
+        with rasterio.open(self.links['hfin']) as src:
             self.sim_size = src.count
             self.res= src.res[0]
         
