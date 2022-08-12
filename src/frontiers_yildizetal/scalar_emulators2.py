@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn import metrics
+import pkg_resources
 from frontiers_yildizetal import Simulations
 
 import rpy2.robjects.packages as rpackages
@@ -13,7 +14,8 @@ class Emulators:
     
     def __init__(self, name:str):
         self.name = name
-        filepath = 'tests/input/input_emulator_' + self.name + '.csv' 
+        path = 'files/input/input_emulator_' + self.name + '.csv'
+        filepath = pkg_resources.resource_filename(__name__, path)
         self.input = pd.read_csv(filepath)
         
 class ScalarEmulators(Emulators):
