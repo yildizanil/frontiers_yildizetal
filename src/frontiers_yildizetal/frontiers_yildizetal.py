@@ -26,7 +26,7 @@ class Simulations:
                 valid_cells = np.where(src.read(band) >= threshold, 1, 0)
                 ia_band = np.sum(valid_cells) * self.res**2 / 1000000
                 ia.append(ia_band)
-            print('IA calculated.')
+            print('IA calculated.', flush=True)
         return ia
     
     def calc_da(self, threshold:float):
@@ -40,7 +40,7 @@ class Simulations:
                 valid_cells = np.where(src.read(band) >= threshold, 1, 0)
                 da_band = np.sum(valid_cells) * self.res**2 / 1000000
                 da.append(da_band)
-            print('DA calculated.')
+            print('DA calculated.', flush=True)
         return da
     
     def calc_dv(self, threshold:float):
@@ -56,7 +56,7 @@ class Simulations:
                 dv_band = np.sum(volume) / 1000000
                 dv_band = round(dv_band, 3)
                 dv.append(dv_band)
-            print('DV calculated.')
+            print('DV calculated.', flush=True)
         return dv
     
     def extract_qoi_at(self, qoi, loc_x, loc_y):
@@ -75,7 +75,7 @@ class Simulations:
             for band in range(1, self.sim_size+1, 1):
                 val_qoi = src.read(band)[self.row, self.col]
                 extracted_qoi.append(val_qoi)
-            print('QoI: ' + qoi + ' extracted.')
+            print('QoI: ' + qoi + ' extracted.', flush=True)
         return extracted_qoi
     
     def curate_scalars(self, threshold:float, loc_x:float, loc_y:float):
