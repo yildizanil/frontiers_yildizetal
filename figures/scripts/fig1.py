@@ -2,10 +2,13 @@ import frontiers_yildizetal as fy
 import matplotlib.pyplot as plt
 import rasterio
 import numpy as np
+from pkg_resources import resource_filename
 
 simple = fy.Simulations('simple')
 
-dem = rasterio.open('tests/raster/elev.tif', 'r').read(1)
+path = 'files/raster/elev.tif'
+dem_path = resource_filename('frontiers_yildizetal', path)
+dem = rasterio.open(dem_path, 'r').read(1)
 
 hmax = rasterio.open(simple.links['hmax'],'r').read(1)
 hfin = rasterio.open(simple.links['hfin'],'r').read(1)
@@ -25,7 +28,7 @@ plt.xticks(np.arange(0, 5001, 1000))
 plt.yticks(np.arange(0, 5001, 500))
 plt.xlim(0,5000)
 plt.ylim(1000,3000)
-plt.text(0, 3800, 'A', weight='bold')
+plt.text(0, 4100, 'A', weight='bold')
 plt.text(3100, 1000,'Flat land at 0 m',ha='left',va='bottom')
 
 plt.subplot(122)
@@ -40,12 +43,12 @@ plt.xlim(0,5000)
 plt.ylim(1000,3000)
 ax2=plt.gca()
 ax2.axes.get_yaxis().set_ticklabels([])
-plt.text(0, 3800, 'B', weight='bold')
+plt.text(0, 4100, 'B', weight='bold')
 plt.text(3100, 1000,'Flat land at 0 m',ha='left',va='bottom')
 
 plt.rcParams['font.family'] = 'Times New Roman'
 plt.rcParams['font.size'] = 10
-plt.rcParams['figure.figsize'] = [18/2.54,10/2.54]
+plt.rcParams['figure.figsize'] = [18/2.54,8/2.54]
 plt.tight_layout()
 plt.subplots_adjust(wspace=0.1)
 
