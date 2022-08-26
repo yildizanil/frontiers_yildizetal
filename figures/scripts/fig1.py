@@ -17,7 +17,7 @@ hfin = rasterio.open(simple.links['hfin'],'r').read(1)
 hmax_ma = np.ma.masked_where(hmax < 0.1, hmax, copy=True)
 hfin_ma = np.ma.masked_where(hfin < 0.1, hfin, copy=True)
 
-fig, ((ax1,ax2)) = plt.subplots(nrows=1, ncols=2,sharey=True)
+fig, ((ax1,ax2)) = plt.subplots(nrows=1, ncols=2)
 
 cmap = mpl.cm.Greys
 norm = mpl.colors.Normalize(vmin=0, vmax=1400)
@@ -39,7 +39,7 @@ ax1.set_xticks(np.arange(0, 5001, 1000))
 ax1.set_yticks(np.arange(0, 5001, 500))
 ax1.set_xlim(0,5000)
 ax1.set_ylim(1000,3000)
-ax1.text(0, 4100, 'A', weight='bold')
+ax1.text(0, 3900, 'A', weight='bold')
 ax1.text(3100, 1000,'Flat land at 0 m',ha='left',va='bottom')
 
 ax2.contourf(dem, extent=[0, 5000, 0, 4000],cmap='Greys',zorder=0,vmin=0,vmax=1400)
@@ -52,7 +52,7 @@ ax2.set_yticks(np.arange(0, 5001, 500), labels=None)
 ax2.set_xlim(0,5000)
 ax2.set_ylim(1000,3000)
 ax2.axes.get_yaxis().set_ticklabels([])
-ax2.text(0, 4100, 'B', weight='bold')
+ax2.text(0, 3900, 'B', weight='bold')
 ax2.text(3100, 1000,'Flat land at 0 m',ha='left',va='bottom')
 
 plt.rcParams['font.family'] = 'Times New Roman'
@@ -62,3 +62,4 @@ plt.tight_layout()
 plt.subplots_adjust(wspace=0.1)
 
 plt.savefig('figures/PDF/fig1.pdf', format='pdf', bbox_inches='tight', facecolor='w')
+plt.savefig('figures/EPS/fig1.eps', format='eps', bbox_inches='tight', facecolor='w')

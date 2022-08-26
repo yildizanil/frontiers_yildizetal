@@ -115,3 +115,4 @@ plt.tight_layout()
 plt.subplots_adjust(hspace=0.1, wspace=0.1)
 
 plt.savefig('figures/PDF/fig6.pdf', format='pdf', facecolor='white',bbox_inches='tight')
+plt.savefig('figures/EPS/fig6.eps', format='eps', facecolor='white',bbox_inches='tight')
