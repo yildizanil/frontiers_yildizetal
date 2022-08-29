@@ -205,7 +205,7 @@ ax14.set_xlabel('Variance')
 
 ax15.scatter(summary_mcs[sk[14]], locs, color='k', marker='o', s=10)
 ax15.scatter(summary_pem[sk[14]], locs, color='k',marker='s', s=10)
-ax15.hlines(y=locs, xmin=summary_mcs[sk[14]],xmax=summary_pem[sk[14]],color=diff_col[sk[14]],zorder=0,linewidth=2,linewidth=2)
+ax15.hlines(y=locs, xmin=summary_mcs[sk[14]],xmax=summary_pem[sk[14]],color=diff_col[sk[14]],zorder=0,linewidth=2)
 ax15.set_ylim(0.75,3.25)
 ax15.set_xlim(-0.3,0.3)
 ax15.set_xticks(np.arange(-0.3,0.31,0.15))
