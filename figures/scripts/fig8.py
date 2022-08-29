@@ -73,7 +73,7 @@ ax3.set_xticks(ticks=np.arange(1489000, 1493600,1000),
                labels=[1.498,'1.490',1.491,1.492,1.493])
 ax3.set_yticks(ticks=np.arange(5201000, 5205001,1000),
                labels=[5.201, 5.202,5.203,5.204,5.205])
-ax3.text(1488500, 5207000, 'B', weight='bold')
+ax3.text(1488500, 5207000, 'C', weight='bold')
 ax3.axes.get_yaxis().set_ticklabels([])
 ax3.axes.get_xaxis().set_ticklabels([])
 
@@ -84,7 +84,7 @@ ax4.set_xticks(ticks=np.arange(1489000, 1493600,1000),
                labels=[1.498,'1.490',1.491,1.492,1.493])
 ax4.set_yticks(ticks=np.arange(5201000, 5205001,1000),
                labels=[5.201, 5.202,5.203,5.204,5.205])
-ax4.text(1488500, 5207000, 'B', weight='bold')
+ax4.text(1488500, 5207000, 'D', weight='bold')
 ax4.set_xlabel('Easting [x 10$^6$ m]')
 ax4.set_ylabel('Northing [x 10$^6$ m]')
 
@@ -95,7 +95,7 @@ ax5.set_xticks(ticks=np.arange(1489000, 1493600,1000),
                labels=[1.498,'1.490',1.491,1.492,1.493])
 ax5.set_yticks(ticks=np.arange(5201000, 5205001,1000),
                labels=[5.201, 5.202,5.203,5.204,5.205])
-ax5.text(1488500, 5207000, 'B', weight='bold')
+ax5.text(1488500, 5207000, 'E', weight='bold')
 ax5.axes.get_yaxis().set_ticklabels([])
 ax5.set_xlabel('Easting [x 10$^6$ m]')
 
@@ -106,7 +106,7 @@ ax6.set_xticks(ticks=np.arange(1489000, 1493600,1000),
                labels=[1.498,'1.490',1.491,1.492,1.493])
 ax6.set_yticks(ticks=np.arange(5201000, 5205001,1000),
                labels=[5.201, 5.202,5.203,5.204,5.205])
-ax6.text(1488500, 5207000, 'B', weight='bold')
+ax6.text(1488500, 5207000, 'F', weight='bold')
 ax6.axes.get_yaxis().set_ticklabels([])
 ax6.set_xlabel('Easting [x 10$^6$ m]')
 
