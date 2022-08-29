@@ -87,3 +87,24 @@ class Simulations:
         
         scalars = pd.DataFrame({'ia':ia, 'da':da, 'dv':dv, 'vmax':vmax, 'hmax':hmax})
         return scalars
+    
+    def create_vector(self, qoi, threshold, valid_cols=None):
+        if qoi not in ['hmax', 'vmax', 'pmax']:
+            raiseExceptions('Invalid QoI. It should be hmax, vmax, or pmax.')
+            
+        with rasterio.open(self.links[qoi]) as src:
+            self.sim_size = src.count
+            self.rows = src.height
+            self.cols = src.width
+        
+            unstacked = np.zeros((self.sim_size, self.rows * self.cols))
+        
+            for sim in range(1, self.sim_size+1, 1):
+                index = sim - 1
+                unstacked[index,:] = src.read(sim).reshape(1, self.rows * self.cols)
+            
+        if valid_cols is None:
+            valid_cols = np.where(unstacked >= threshold, 1, 0).sum(axis=0)
+        indices = np.flatnonzero(valid_cols)
+        training = pd.DataFrame(unstacked[:,indices], columns=indices)
+        return training, valid_cols

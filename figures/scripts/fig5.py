@@ -1,4 +1,4 @@
-from frontiers_yildizetal.scalar_emulators2 import *
+from frontiers_yildizetal.emulators import *
 from pkg_resources import resource_filename
 import pandas as pd
 import matplotlib.pyplot as plt

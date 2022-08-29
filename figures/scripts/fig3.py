@@ -1,5 +1,5 @@
 import frontiers_yildizetal as fy
-from frontiers_yildizetal.scalar_emulators2 import *
+from frontiers_yildizetal.emulators import *
 import pkg_resources
 import pandas as pd
 import numpy as np
