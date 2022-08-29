@@ -3,6 +3,9 @@ import numpy as np
 from sklearn import metrics
 import pkg_resources
 from frontiers_yildizetal import Simulations
+import rasterio
+import yaml
+from yaml.loader import SafeLoader
 
 import rpy2.robjects.packages as rpackages
 import rpy2.robjects.numpy2ri
@@ -20,6 +23,11 @@ class Emulators:
         validpath = pkg_resources.resource_filename(__name__, path_validate)
         self.input = pd.read_csv(filepath)
         self.input_validate = pd.read_csv(validpath)
+        path_download = 'files/download_links.yml'
+        filepath_download = pkg_resources.resource_filename(__name__, path_download)
+        with open(filepath_download) as f:
+            self.download_links = yaml.load(f, Loader=SafeLoader)
+        self.links = self.download_links[self.name]
         
 class ScalarEmulators(Emulators):
     def __init__(self, name, h_threshold, loc_x, loc_y):
@@ -49,6 +57,13 @@ class VectorEmulators(Emulators):
         super().__init__(name)
         self.vector, self.valid_cols = Simulations(self.name).create_vector(qoi=qoi, threshold=threshold)
         self.vector_validate, self.valid_cols = Simulations((self.name + '_validate')).create_vector(qoi=qoi, threshold=threshold, valid_cols=self.valid_cols)
+        self.qoi = qoi
+        self.threshold = threshold
+        
+        with rasterio.open(self.links[qoi]) as src:
+            self.sim_size = src.count
+            self.rows = src.height
+            self.cols = src.width
     
     def model(self):
         model = robustgasp.ppgasp(design=self.input.to_numpy(), response=self.vector.to_numpy())
@@ -69,3 +84,18 @@ class VectorEmulators(Emulators):
         prediction = {'prediction':predicted, 'pci95':self.pci95, 'lci95':self.lci95, 'mean_sq_err':self.mean_squared_error}
 
         return prediction
+    
+    def predict_vector(self,input_pred):
+        trained= self.model()
+        predicted = robustgasp.predict_ppgasp(object=trained, testing_input=input_pred.to_numpy())
+        
+        pred_size = input_pred.shape[0]
+        pred_index = [int(i) for i in list(self.vector.columns)]
+        
+        pred = np.empty((pred_size, self.rows * self.cols))
+        pred[:,pred_index] = predicted[0]
+            
+        pred_mean = pred.mean(axis=0).reshape(self.rows, self.cols)
+        pred_sd = pred.std(axis=0).reshape(self.rows, self.cols)
+            
+        return pred_mean, pred_sd
