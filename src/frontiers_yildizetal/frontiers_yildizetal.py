@@ -12,8 +12,8 @@ class Simulations:
         path = 'files/download_links.yml'
         filepath = pkg_resources.resource_filename(__name__, path)
         with open(filepath) as f:
-            download_links = yaml.load(f, Loader=SafeLoader)
-        self.links = download_links[self.name]
+            self.download_links = yaml.load(f, Loader=SafeLoader)
+        self.links = self.download_links[self.name]
 
     def calc_ia(self, threshold:float):
         with rasterio.open(self.links['hmax']) as src:

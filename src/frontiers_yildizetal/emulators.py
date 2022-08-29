@@ -48,6 +48,7 @@ class VectorEmulators(Emulators):
     def __init__(self, name, qoi, threshold):
         super().__init__(name)
         self.vector, self.valid_cols = Simulations(self.name).create_vector(qoi=qoi, threshold=threshold)
+        self.vector_validate, self.valid_cols = Simulations((self.name + '_validate')).create_vector(qoi=qoi, threshold=threshold, valid_cols=self.valid_cols)
     
     def model(self):
         model = robustgasp.ppgasp(design=self.input.to_numpy(), response=self.vector.to_numpy())
@@ -56,5 +57,15 @@ class VectorEmulators(Emulators):
     def validate(self):
         trained = self.model()
         predicted = robustgasp.predict_ppgasp(object=trained, testing_input=self.input_validate.to_numpy())
-        return predicted
-    
+        
+        predict_mean = np.where(predicted[0] < 0, 0 , predicted[0])
+        predict_lower = np.where(predicted[1] < 0, 0 , predicted[1])
+        predict_upper = np.where(predicted[2] < 0, 0 , predicted[2])
+        
+        self.pci95 = np.mean(np.where((self.vector_validate >= predict_lower) & (self.vector_validate <= predict_upper), 1, 0))
+        self.mean_squared_error = np.mean((predict_mean - self.vector_validate)**2)
+        self.lci95 = np.mean(predict_upper-predict_lower)
+        
+        prediction = {'prediction':predicted, 'pci95':self.pci95, 'lci95':self.lci95, 'mean_sq_err':self.mean_squared_error}
+
+        return prediction
