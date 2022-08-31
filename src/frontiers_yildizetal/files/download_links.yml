@@ -1,15 +1,15 @@
 ---
-simple:
+synth:
   hmax: https://figshare.com/ndownloader/files/36604485?private_link=94c4ff3a1abab53adb79
   hfin: https://figshare.com/ndownloader/files/36604479?private_link=94c4ff3a1abab53adb79
   vmax: https://figshare.com/ndownloader/files/36604497?private_link=94c4ff3a1abab53adb79
   pmax: https://figshare.com/ndownloader/files/36604488?private_link=94c4ff3a1abab53adb79
-simple_pem:
+synth_pem:
   hmax: https://figshare.com/ndownloader/files/36604530?private_link=8e02cb81fe5f2885db56
   hfin: https://figshare.com/ndownloader/files/36604524?private_link=8e02cb81fe5f2885db56
   vmax: https://figshare.com/ndownloader/files/36604539?private_link=8e02cb81fe5f2885db56
   pmax: https://figshare.com/ndownloader/files/36604533?private_link=8e02cb81fe5f2885db56
-simple_validate:
+synth_validate:
   hmax: https://figshare.com/ndownloader/files/36604626?private_link=08edde41c484ad43e219
   hfin: https://figshare.com/ndownloader/files/36604620?private_link=08edde41c484ad43e219
   vmax: https://figshare.com/ndownloader/files/36604635?private_link=08edde41c484ad43e219

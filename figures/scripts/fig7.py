@@ -10,26 +10,26 @@ path = 'files/raster/elev.tif'
 dem_path = resource_filename('frontiers_yildizetal', path)
 dem = rasterio.open(dem_path, 'r').read(1)
 
-simple = VectorEmulators('simple',qoi='hmax',threshold=0.1)
+synth = VectorEmulators('synth',qoi='hmax',threshold=0.1)
 
-path = 'files/input/input_mcs3_simple.csv'
+path = 'files/input/input_mcs3_synth.csv'
 filepath = resource_filename('frontiers_yildizetal', path)
 input_mcs3 = pd.read_csv(filepath)
 
-mcs3_mean, mcs3_sd = simple.predict_vector(input_mcs3)
+mcs3_mean, mcs3_sd = synth.predict_vector(input_mcs3)
 mcs3_mean_ma = np.ma.masked_where(mcs3_mean < 0.1, mcs3_mean, copy=True)
 mcs3_sd_ma = np.ma.masked_where(mcs3_mean < 0.1, mcs3_sd, copy=True)
 
-simple_pem = fy.Simulations('simple_pem').create_vector(qoi='hmax',threshold=0.1,valid_cols=simple.valid_cols)
+synth_pem = fy.Simulations('synth_pem').create_vector(qoi='hmax',threshold=0.1,valid_cols=synth.valid_cols)
 
-pem3_mean = np.zeros((1,simple.rows * simple.cols))
-pem3_mean[:,list(simple.vector.columns)] = simple_pem[0][16:24].mean(axis=0)
-pem3_mean = pem3_mean.reshape(simple.rows,simple.cols)
+pem3_mean = np.zeros((1,synth.rows * synth.cols))
+pem3_mean[:,list(synth.vector.columns)] = synth_pem[0][16:24].mean(axis=0)
+pem3_mean = pem3_mean.reshape(synth.rows,synth.cols)
 pem3_mean_ma = np.ma.masked_where(pem3_mean < 0.1, pem3_mean, copy=True)
 
-pem3_sd = np.zeros((1,simple.rows * simple.cols))
-pem3_sd[:,list(simple.vector.columns)] = simple_pem[0][16:24].std(axis=0)
-pem3_sd = pem3_sd.reshape(simple.rows,simple.cols)
+pem3_sd = np.zeros((1,synth.rows * synth.cols))
+pem3_sd[:,list(synth.vector.columns)] = synth_pem[0][16:24].std(axis=0)
+pem3_sd = pem3_sd.reshape(synth.rows,synth.cols)
 pem3_sd_ma = np.ma.masked_where(pem3_mean < 0.1, pem3_sd, copy=True)
 
 diff_mean = (pem3_mean - mcs3_mean)

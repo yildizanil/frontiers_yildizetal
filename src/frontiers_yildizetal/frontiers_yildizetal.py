@@ -1,4 +1,3 @@
-from logging import raiseExceptions
 import pandas as pd
 import numpy as np
 import rasterio
@@ -33,6 +32,10 @@ class Simulations:
         Creates a dataframe of simulation outputs to be used in vector emulators
     """
     def __init__(self, name:str):
+        
+        if name not in ['synth', 'synth_pem', 'synth_validate', 'acheron', 'acheron_pem', 'acheron_validate']:
+            raise Exception('Invalid set of simulations. It must be synth, synth_pem, synth_validate, acheron, acheron_pem or acheron_validate')
+        
         self.name = name
         path = 'files/download_links.yml'
         filepath = pkg_resources.resource_filename(__name__, path)
@@ -216,11 +219,7 @@ class Simulations:
             raise TypeError("x-coordinate (loc_x) must be an integer or a float")
         if not isinstance(loc_y, (int, float)):
             raise TypeError("y-coordinate (loc_y) must be an integer or a float")
-        if loc_x <= self.bounds[0] or loc_x >= self.bounds[2]:
-               raise Exception('x-coordinate is out of bounds')
-        if loc_y <= self.bounds[1] or loc_y >= self.bounds[3]:
-                raise Exception('y-coordinate is out of bounds')
-        
+                
         ia = self.calc_ia(threshold)
         da = self.calc_da(threshold)
         dv = self.calc_dv(threshold)

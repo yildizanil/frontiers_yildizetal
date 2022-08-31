@@ -3,18 +3,18 @@ from pkg_resources import resource_filename
 import pandas as pd
 import matplotlib.pyplot as plt
 
-simple = ScalarEmulators('simple',h_threshold=0.1, loc_x=1000, loc_y=2000)
+synth = ScalarEmulators('synth',h_threshold=0.1, loc_x=1000, loc_y=2000)
 
-path = 'files/input/input_mcs3_simple.csv'
+path = 'files/input/input_mcs3_synth.csv'
 filepath = resource_filename('frontiers_yildizetal', path)
 input_mcs3 = pd.read_csv(filepath)
 input_mcs3.columns = ['coulomb','turbulent','volume']
 
-scalars = list(simple.output.columns)
+scalars = list(synth.output.columns)
 
 predicted = {}
 for scalar in scalars:
-    predicted[scalar] = simple.predict_scalar(scalar,input_mcs3.to_numpy())[0]
+    predicted[scalar] = synth.predict_scalar(scalar,input_mcs3.to_numpy())[0]
 
 fig, ((ax1, ax2, ax3, ax4), (ax5, ax6, ax7, ax8), (ax9, ax10, ax11, ax12),
       (ax13, ax14, ax15, ax16), (ax17, ax18, ax19, ax20)) = plt.subplots(

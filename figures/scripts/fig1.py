@@ -5,14 +5,14 @@ import numpy as np
 from pkg_resources import resource_filename
 import matplotlib as mpl
 
-simple = fy.Simulations('simple')
+synth = fy.Simulations('synth')
 
 path = 'files/raster/elev.tif'
 dem_path = resource_filename('frontiers_yildizetal', path)
 dem = rasterio.open(dem_path, 'r').read(1)
 
-hmax = rasterio.open(simple.links['hmax'],'r').read(1)
-hfin = rasterio.open(simple.links['hfin'],'r').read(1)
+hmax = rasterio.open(synth.links['hmax'],'r').read(1)
+hfin = rasterio.open(synth.links['hfin'],'r').read(1)
 
 hmax_ma = np.ma.masked_where(hmax < 0.1, hmax, copy=True)
 hfin_ma = np.ma.masked_where(hfin < 0.1, hfin, copy=True)

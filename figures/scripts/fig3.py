@@ -7,10 +7,10 @@ from scipy.stats import skew
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 
-pem = Simulations('simple_pem')
+pem = Simulations('synth_pem')
 pem_scalar = pem.curate_scalars(threshold=0.1, loc_x=1000, loc_y=2000)
 
-simple = ScalarEmulators('simple', h_threshold=0.1, loc_x=1000, loc_y=2000)
+synth = ScalarEmulators('synth', h_threshold=0.1, loc_x=1000, loc_y=2000)
 
 scalars = list(pem_scalar.columns)
 mcs_analysis = ['mcs1','mcs2','mcs3']
@@ -21,11 +21,11 @@ f_names = ['mean','var','skew']
 mcs_moments = {}
 for i in scalars:
     for j in mcs_analysis:
-        path = 'files/input/input_' + j + '_simple.csv'
+        path = 'files/input/input_' + j + '_synth.csv'
         filepath = pkg_resources.resource_filename('frontiers_yildizetal', path)
         input = pd.read_csv(filepath).to_numpy()
         
-        predicted = simple.predict_scalar(i, input)[0]
+        predicted = synth.predict_scalar(i, input)[0]
         for k, f in enumerate(funcs):
             naming = j + '_' + i + '_' + f_names[k]
             if f is np.var:

@@ -1,6 +1,10 @@
-# frontiers_yildizetal
+# Computationally-feasible uncertainty quantification in model-based landslide risk assessment
 
-Python package used in Yildiz et al. (2022) in Frontiers
+Anil Yildiz, Hu Zhao, Julia Kowalski
+
+----
+
+Python package used in the publication *Computationally-feasible uncertainty quantification in model-based landslide risk assessment* submitted to Frontiers in Earth Science: Geohazards and Georisks as part of the research topic *Physics and Modelling of Landslides*.
 
 ## Installation
 
@@ -11,10 +15,6 @@ $ pip install frontiers_yildizetal
 ## Usage
 
 - TODO
-
-## Contributing
-
-Interested in contributing? Check out the contributing guidelines. Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
 
 ## License
 
