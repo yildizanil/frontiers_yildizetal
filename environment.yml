@@ -6,7 +6,7 @@ dependencies:
   - numpy
   - pandas
   - poetry
-  - python=3.10
+  - python
   - pyyaml
   - rasterio
   - rpy2
