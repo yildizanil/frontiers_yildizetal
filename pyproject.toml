@@ -8,6 +8,12 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
+pandas
+numpy
+rasterio
+yaml
+pkg_resources
+sklearn
 
 [tool.poetry.dev-dependencies]
 
