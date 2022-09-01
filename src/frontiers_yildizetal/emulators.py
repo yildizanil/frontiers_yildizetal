@@ -7,6 +7,11 @@ import rasterio
 import yaml
 from yaml.loader import SafeLoader
 
+import os
+if os.name == 'nt':
+    r_path = os.environ["CONDA_PREFIX"] + '/lib/R'
+    os.environ['R_HOME'] = r_path 
+
 import rpy2.robjects.packages as rpackages
 import rpy2.robjects.numpy2ri
 
