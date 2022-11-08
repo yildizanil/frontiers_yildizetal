@@ -88,7 +88,7 @@ ax17.hist2d(input_mcs3['coulomb'], predicted['hmax'],cmap='viridis',cmin=1,cmax=
 ax17.set_ylim(6,16)
 ax17.set_yticks(np.arange(6,17,2))
 ax17.set_xlim(0.02,0.3)
-ax17.set_ylabel('Max. flow height \n [m/s]')
+ax17.set_ylabel('Max. flow height \n [m]')
 ax17.set_xlabel('Coulomb fric. coef. \n [-]')
 
 ax18.hist2d(input_mcs3['turbulent'], predicted['hmax'],cmap='viridis',cmin=1,cmax=3000, bins=30)
