@@ -61,5 +61,9 @@ plt.rcParams['figure.figsize'] = [18/2.54,7/2.54]
 plt.tight_layout()
 plt.subplots_adjust(wspace=0.1)
 
+fig.set_rasterized(True)
+ax1.set_rasterized(True)
+ax2.set_rasterized(True)
+
 plt.savefig('figures/PDF/fig1.pdf', format='pdf', bbox_inches='tight', facecolor='w')
 plt.savefig('figures/EPS/fig1.eps', format='eps', bbox_inches='tight', facecolor='w')
