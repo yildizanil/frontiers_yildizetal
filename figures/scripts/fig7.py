@@ -117,5 +117,13 @@ plt.tight_layout()
 
 plt.subplots_adjust(hspace=0, wspace=0.1)
 
+fig.set_rasterized(True)
+ax1.set_rasterized(True)
+ax2.set_rasterized(True)
+ax3.set_rasterized(True)
+ax4.set_rasterized(True)
+ax5.set_rasterized(True)
+ax6.set_rasterized(True)
+
 plt.savefig('figures/EPS/fig7.eps', format='eps', bbox_inches='tight', facecolor='w')
 plt.savefig('figures/PDF/fig7.pdf', format='pdf', bbox_inches='tight', facecolor='w')
