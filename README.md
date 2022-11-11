@@ -8,8 +8,22 @@ Python package used in the publication *Computationally-feasible uncertainty qua
 
 ## Installation
 
+We strongly recommend to work on an isolated virtual environment, and we suggest to use a [Conda](https://docs.conda.io/en/latest/) environment.
+
+1. Clone the repository hosted on Github https://github.com/yildizanil/frontiers_yildizetal
+2. If you have not already installed, download your preferred installation of Conda. You can try [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or [Anaconda](https://docs.anaconda.com/anaconda/install/index.html)
+3. Create a virtual environment with the dependencies given in the ```environment.yml``` file.
 ```bash
-$ pip install frontiers_yildizetal
+$ conda env create --file environment.yml
+```
+4. Once the installation is complete, activate the environment
+```bash
+$ conda activate yildizetal2022
+```
+5. Install the package using [Poetry](https://python-poetry.org/docs/basic-usage/)
+
+```bash
+$ poetry install
 ```
 
 ## Usage
