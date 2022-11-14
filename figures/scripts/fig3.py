@@ -10,9 +10,9 @@ import matplotlib.pyplot as plt
 pem = Simulations('synth_pem')
 pem_scalar = pem.curate_scalars(threshold=0.1, loc_x=1000, loc_y=2000)
 
-synth = ScalarEmulators('synth', h_threshold=0.1, loc_x=1000, loc_y=2000)
+synth = ScalarEmulators('synth', threshold=0.1, loc_x=1000, loc_y=2000)
 
-scalars = list(pem_scalar.columns)
+scalars = list(pem_scalar.keys())
 mcs_analysis = ['mcs1','mcs2','mcs3']
 pem_analysis = ['pem1','pem2','pem3']
 funcs = [np.mean, np.var, skew]
@@ -23,9 +23,9 @@ for i in scalars:
     for j in mcs_analysis:
         path = 'files/input/input_' + j + '_synth.csv'
         filepath = pkg_resources.resource_filename('frontiers_yildizetal', path)
-        input = pd.read_csv(filepath).to_numpy()
+        input_test = np.genfromtxt(filepath, delimiter=',', skip_header=1)
         
-        predicted = synth.predict_scalar(i, input)[0]
+        predicted = synth.predict_scalar(i, input_test)[0]
         for k, f in enumerate(funcs):
             naming = j + '_' + i + '_' + f_names[k]
             if f is np.var:
@@ -35,14 +35,14 @@ for i in scalars:
 
 pem_moments = {}
 for i, mcs in enumerate(pem_analysis):
-    data = pem_scalar.iloc[8*i:8*(i+1),:]
     for scalar in scalars:
+        data = pem_scalar[scalar][8*i:8*(i+1)]
         for j, f in enumerate(funcs):
             naming = mcs + '_' + scalar + '_' + f_names[j]
             if f is np.var:
-                pem_moments[naming] = round(f(data[scalar],ddof=1),3)
+                pem_moments[naming] = round(f(data,ddof=1),3)
             else:
-                pem_moments[naming] = round(f(data[scalar]),3)
+                pem_moments[naming] = round(f(data),3)
                 
 locs = [1,2,3]
 

@@ -10,13 +10,15 @@ ac = fy.Simulations('acheron')
 
 path = 'files/raster/hillshade_acheron.tif'
 hill_path = resource_filename('frontiers_yildizetal', path)
-hill = rasterio.open(hill_path, 'r')
-hill_arr = hill.read(1)
+with rasterio.open(hill_path,'r') as hill:
+    hill_arr = hill.read(1)
 hill_ma = np.ma.masked_where(hill_arr < -30000, hill_arr, copy=True)
 
-hmax = rasterio.open(ac.links['hmax'],'r').read(1)
-hfin = rasterio.open(ac.links['hfin'],'r').read(1)
-
+with rasterio.open(ac.links['hmax'],'r') as src:
+    hmax = src.read(1)
+with rasterio.open(ac.links['hfin'],'r') as src2:
+    hfin = src2.read(1)
+    
 hmax_ma = np.ma.masked_where(hmax < 0.1, hmax, copy=True)
 hfin_ma = np.ma.masked_where(hfin < 0.1, hfin, copy=True)
 
@@ -24,7 +26,8 @@ fig, ((ax1,ax2)) = plt.subplots(nrows=1, ncols=2,
                                 gridspec_kw={'width_ratios': [1, 1]})
 
 ax1.imshow(hill_ma, cmap='Greys', extent=plotting_extent(hill))
-c1 = ax1.imshow(hmax_ma, cmap='viridis', extent=plotting_extent(hill),zorder=1)
+c1 = ax1.imshow(hmax_ma, cmap='viridis',
+                extent=plotting_extent(hill),zorder=1)
 fig.colorbar(c1,ax=ax1,location='top', orientation='horizontal',
              label='Maximum flow height [m]',shrink=1)
 ax1.set_xlabel('Easting [x 10$^6$ m]')
@@ -36,7 +39,8 @@ ax1.set_yticks(ticks=np.arange(5201000, 5205001,1000),
 ax1.text(1488500, 5207000, 'A', weight='bold')
 
 ax2.imshow(hill_ma, cmap='Greys', extent=plotting_extent(hill))
-c2 = ax2.imshow(hfin_ma, cmap='viridis', extent=plotting_extent(hill),zorder=1)
+c2 = ax2.imshow(hfin_ma, cmap='viridis',
+                extent=plotting_extent(hill),zorder=1)
 fig.colorbar(c2, ax=ax2,location='top', orientation='horizontal',
              label='Deposit height [m]',shrink=1)
 ax2.set_xlabel('Easting [x 10$^6$ m]')

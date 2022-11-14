@@ -1,5 +1,5 @@
 import frontiers_yildizetal as fy
-from frontiers_yildizetal.emulators import *
+from frontiers_yildizetal.emulators import VectorEmulators
 from pkg_resources import resource_filename
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -8,13 +8,14 @@ import rasterio
 
 path = 'files/raster/elev.tif'
 dem_path = resource_filename('frontiers_yildizetal', path)
-dem = rasterio.open(dem_path, 'r').read(1)
+with rasterio.open(dem_path,'r') as src:
+    dem = src.read(1)
 
 synth = VectorEmulators('synth',qoi='hmax',threshold=0.1)
 
 path = 'files/input/input_mcs3_synth.csv'
 filepath = resource_filename('frontiers_yildizetal', path)
-input_mcs3 = pd.read_csv(filepath)
+input_mcs3 = np.genfromtxt(filepath,delimiter=',',skip_header=1)
 
 mcs3_mean, mcs3_sd = synth.predict_vector(input_mcs3)
 mcs3_mean_ma = np.ma.masked_where(mcs3_mean < 0.1, mcs3_mean, copy=True)

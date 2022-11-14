@@ -1,5 +1,5 @@
 import frontiers_yildizetal as fy
-from frontiers_yildizetal.emulators import *
+from frontiers_yildizetal.emulators import VectorEmulators
 from pkg_resources import resource_filename
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -9,15 +9,15 @@ from rasterio.plot import plotting_extent
 
 path = 'files/raster/hillshade_acheron.tif'
 hill_path = resource_filename('frontiers_yildizetal', path)
-hill = rasterio.open(hill_path, 'r')
-hill_arr = hill.read(1)
+with rasterio.open(hill_path, 'r') as hill:
+    hill_arr = hill.read(1)
 hill_ma = np.ma.masked_where(hill_arr < -30000, hill_arr, copy=True)
 
 ac = VectorEmulators('acheron',qoi='hmax',threshold=0.1)
 
 path = 'files/input/input_mcs3_acheron.csv'
 filepath = resource_filename('frontiers_yildizetal', path)
-input_mcs3 = pd.read_csv(filepath)
+input_mcs3 = np.genfromtxt(filepath,delimiter=',', skip_header=1)
 
 mcs3_mean, mcs3_sd = ac.predict_vector(input_mcs3)
 mcs3_mean_ma = np.ma.masked_where(mcs3_mean < 0.1, mcs3_mean, copy=True)

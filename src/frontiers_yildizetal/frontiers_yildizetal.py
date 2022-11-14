@@ -12,9 +12,9 @@ class Simulations:
     Attributes
     ----------
     name:str
-        name of the simulation set
+        Name of the simulation set. Can be one of the following: synth, synth_pem, synth_validate, acheron, acheron_pem, acheron_validate
     links:dict
-        dictionary of download links
+        Dictionary of download links
     
     Methods
     -------
@@ -31,18 +31,21 @@ class Simulations:
     create_vector(qoi, threshold, valid_cols=None):
         Creates a dataframe of simulation outputs to be used in vector emulators
     """
+    path = 'files/download_links.yml'
+    filepath = pkg_resources.resource_filename(__name__, path)
+    with open(filepath) as f:
+        download_links = yaml.load(f, Loader=SafeLoader)
+    
     def __init__(self, name:str):
         
+        if not isinstance(name,str):
+            raise TypeError('name must be a string')
         if name not in ['synth', 'synth_pem', 'synth_validate', 'acheron', 'acheron_pem', 'acheron_validate']:
             raise Exception('Invalid set of simulations. It must be synth, synth_pem, synth_validate, acheron, acheron_pem or acheron_validate')
         
         self.name = name
-        path = 'files/download_links.yml'
-        filepath = pkg_resources.resource_filename(__name__, path)
-        with open(filepath) as f:
-            self.download_links = yaml.load(f, Loader=SafeLoader)
         self.links = self.download_links[self.name]
-
+        
     def calc_ia(self, threshold:float):
         """ Calculates the impact area of a collection of simulations
 
@@ -63,15 +66,15 @@ class Simulations:
             raise ValueError("threshold cannot be negative")
         
         with rasterio.open(self.links['hmax']) as src:
-            self.sim_size = src.count
-            self.res= src.res[0]
+            sim_size = src.count
+            res= src.res[0]
+            ia = np.empty((sim_size))
             
-            ia = []
             print('Calculating IA...')
-            for band in range(1, self.sim_size+1, 1):
+            for band in range(1, sim_size+1, 1):
                 valid_cells = np.where(src.read(band) >= threshold, 1, 0)
-                ia_band = np.sum(valid_cells) * self.res**2 / 1000000
-                ia.append(ia_band)
+                ia_band = np.sum(valid_cells) * res**2 / 1000000
+                ia[band-1] = ia_band
             print('IA calculated.')
         return ia
     
@@ -95,15 +98,15 @@ class Simulations:
             raise ValueError("threshold cannot be negative")
         
         with rasterio.open(self.links['hfin']) as src:
-            self.sim_size = src.count
-            self.res= src.res[0]
+            sim_size = src.count
+            res= src.res[0]
+            da = np.empty((sim_size))
             
-            da = []
             print('Calculating DA...')
-            for band in range(1, self.sim_size+1, 1):
+            for band in range(1, sim_size+1, 1):
                 valid_cells = np.where(src.read(band) >= threshold, 1, 0)
-                da_band = np.sum(valid_cells) * self.res**2 / 1000000
-                da.append(da_band)
+                da_band = np.sum(valid_cells) * res**2 / 1000000
+                da[band-1] = da_band
             print('DA calculated.', flush=True)
         return da
     
@@ -127,17 +130,16 @@ class Simulations:
             raise ValueError("threshold cannot be negative")
         
         with rasterio.open(self.links['hfin']) as src:
-            self.sim_size = src.count
-            self.res= src.res[0]
-        
-            dv = []
+            sim_size = src.count
+            res= src.res[0]
+            dv = np.empty((sim_size))
+            
             print('Calculating DV...')
-            for band in range(1, self.sim_size+1, 1):
-                valid_cells = np.where(src.read(band) >= threshold, self.res**2, 0)
+            for band in range(1, sim_size+1, 1):
+                valid_cells = np.where(src.read(band) >= threshold, res**2, 0)
                 volume = np.multiply(src.read(band), valid_cells)
-                dv_band = np.sum(volume) / 1000000
-                dv_band = round(dv_band, 3)
-                dv.append(dv_band)
+                dv_band = round((np.sum(volume) / 1000000),3)
+                dv[band-1] = dv_band
             print('DV calculated.', flush=True)
         return dv
     
@@ -172,22 +174,22 @@ class Simulations:
             raise TypeError("y-coordinate (loc_y) must be an integer or a float")
         
         with rasterio.open(self.links[qoi]) as src:
-            self.sim_size = src.count
-            self.res= src.res[0]
-            self.bounds = src.bounds
-            self.row = src.index(loc_x,loc_y)[0]
-            self.col = src.index(loc_x,loc_y)[1]
+            sim_size = src.count
+            bounds = src.bounds
+            row = src.index(loc_x,loc_y)[0]
+            col = src.index(loc_x,loc_y)[1]
             
-            if loc_x <= self.bounds[0] or loc_x >= self.bounds[2]:
+            if loc_x <= bounds[0] or loc_x >= bounds[2]:
                raise Exception('x-coordinate is out of bounds')
-            if loc_y <= self.bounds[1] or loc_y >= self.bounds[3]:
+            if loc_y <= bounds[1] or loc_y >= bounds[3]:
                 raise Exception('y-coordinate is out of bounds')
-                    
-            extracted_qoi = []
+            
+            extracted_qoi = np.empty((sim_size))
+            
             print('Extracting QoI: ' + qoi + '... ')
-            for band in range(1, self.sim_size+1, 1):
-                val_qoi = src.read(band)[self.row, self.col]
-                extracted_qoi.append(val_qoi)
+            for band in range(1, sim_size+1, 1):
+                val_qoi = src.read(band)[row, col]
+                extracted_qoi[band-1] = val_qoi
             print('QoI: ' + qoi + ' extracted.', flush=True)
         return extracted_qoi
     
@@ -220,14 +222,17 @@ class Simulations:
         if not isinstance(loc_y, (int, float)):
             raise TypeError("y-coordinate (loc_y) must be an integer or a float")
                 
-        ia = self.calc_ia(threshold)
-        da = self.calc_da(threshold)
-        dv = self.calc_dv(threshold)
         
-        vmax = self.extract_qoi_at(qoi='vmax', loc_x=loc_x, loc_y=loc_y)
-        hmax = self.extract_qoi_at(qoi='hmax', loc_x=loc_x, loc_y=loc_y)
         
-        scalars = pd.DataFrame({'ia':ia, 'da':da, 'dv':dv, 'vmax':vmax, 'hmax':hmax})
+        scalars = {}
+        
+        scalars['ia'] = self.calc_ia(threshold)
+        scalars['da'] = self.calc_da(threshold)
+        scalars['dv'] = self.calc_dv(threshold)
+        
+        scalars['vmax'] = self.extract_qoi_at(qoi='vmax', loc_x=loc_x, loc_y=loc_y)
+        scalars['hmax'] = self.extract_qoi_at(qoi='hmax', loc_x=loc_x, loc_y=loc_y)
+        
         return scalars
     
     def create_vector(self, qoi, threshold, valid_cols=None):
@@ -256,15 +261,15 @@ class Simulations:
             raise ValueError("threshold cannot be negative")
         
         with rasterio.open(self.links[qoi]) as src:
-            self.sim_size = src.count
-            self.rows = src.height
-            self.cols = src.width
+            sim_size = src.count
+            rows = src.height
+            cols = src.width
         
-            unstacked = np.zeros((self.sim_size, self.rows * self.cols))
+            unstacked = np.zeros((sim_size, rows * cols))
         
-            for sim in range(1, self.sim_size+1, 1):
+            for sim in range(1, sim_size+1, 1):
                 index = sim - 1
-                unstacked[index,:] = src.read(sim).reshape(1, self.rows * self.cols)
+                unstacked[index,:] = src.read(sim).reshape(1, rows * cols)
             
         if valid_cols is None:
             valid_cols = np.where(unstacked >= threshold, 1, 0).sum(axis=0)

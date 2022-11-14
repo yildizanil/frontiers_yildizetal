@@ -8,11 +8,13 @@ from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 
 pem = Simulations('acheron_pem')
-pem_scalar = pem.curate_scalars(threshold=0.1, loc_x=1490100, loc_y=5204100)
+pem_scalar = pem.curate_scalars(threshold=0.1,
+                                loc_x=1490100, loc_y=5204100)
 
-ac = ScalarEmulators('acheron', h_threshold=0.1, loc_x=1490100, loc_y=5204100)
+ac = ScalarEmulators('acheron', threshold=0.1,
+                     loc_x=1490100, loc_y=5204100)
 
-scalars = list(pem_scalar.columns)
+scalars = list(pem_scalar.keys())
 mcs_analysis = ['mcs1','mcs2','mcs3']
 pem_analysis = ['pem1','pem2','pem3']
 funcs = [np.mean, np.var, skew]
@@ -23,9 +25,9 @@ for i in scalars:
     for j in mcs_analysis:
         path = 'files/input/input_' + j + '_acheron.csv'
         filepath = pkg_resources.resource_filename('frontiers_yildizetal', path)
-        input = pd.read_csv(filepath).to_numpy()
+        input_test = np.genfromtxt(filepath, delimiter=',', skip_header=1)
         
-        predicted = ac.predict_scalar(i, input)[0]
+        predicted = ac.predict_scalar(i, input_test)[0]
         for k, f in enumerate(funcs):
             naming = j + '_' + i + '_' + f_names[k]
             if f is np.var:
@@ -33,16 +35,17 @@ for i in scalars:
             else:
                 mcs_moments[naming] = round(f(predicted),3)
 
+
 pem_moments = {}
-for i, mcs in enumerate(pem_analysis):
-    data = pem_scalar.iloc[8*i:8*(i+1),:]
+for i, pem in enumerate(pem_analysis):
     for scalar in scalars:
+        data = pem_scalar[scalar][8*i:8*(i+1)]
         for j, f in enumerate(funcs):
-            naming = mcs + '_' + scalar + '_' + f_names[j]
+            naming = pem + '_' + scalar + '_' + f_names[j]
             if f is np.var:
-                pem_moments[naming] = round(f(data[scalar],ddof=1),3)
+                pem_moments[naming] = round(f(data,ddof=1),3)
             else:
-                pem_moments[naming] = round(f(data[scalar]),3)
+                pem_moments[naming] = round(f(data),3)
                 
 locs = [1,2,3]
 
