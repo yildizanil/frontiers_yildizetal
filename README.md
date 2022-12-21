@@ -23,7 +23,7 @@ $ conda activate yildizetal2022
 5. Install the package using [Poetry](https://python-poetry.org/docs/basic-usage/)
 
 ```bash
-$ poetry install
+$ pip install git+https://github.com/yildizanil/frontiers_yildizetal.git
 ```
 
 ## Usage
@@ -36,4 +36,7 @@ $ poetry install
 
 ## Credits
 
-`frontiers_yildizetal` was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter).
+This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
+
+.. _Cookiecutter: https://github.com/audreyr/cookiecutter
+.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
