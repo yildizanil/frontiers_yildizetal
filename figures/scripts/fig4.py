@@ -1,20 +1,20 @@
 import frontiers_yildizetal as fy
 from frontiers_yildizetal.emulators import *
 import pkg_resources
-import pandas as pd
 import numpy as np
 from scipy.stats import skew
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 
 pem = Simulations('acheron_pem')
-pem_scalar = pem.curate_scalars(threshold=0.1, loc_x=1490100, loc_y=5204100)
+x, y = 1490100, 5204100
 
-ac = ScalarEmulators('acheron', threshold=0.1, loc_x=1490100, loc_y=5204100)
+pem_scalar = pem.curate_scalars(threshold=0.1, loc_x=x, loc_y=y)
+ac = ScalarEmulators('acheron', threshold=0.1, loc_x=x, loc_y=y)
 
 scalars = list(pem_scalar.keys())
-mcs_analysis = ['mcs1', 'mcs2', 'mcs3']
-pem_analysis = ['pem1', 'pem2', 'pem3']
+mcs_analysis = ['mcs' + str(i) for i in range(1, 4)]
+pem_analysis = ['pem' + str(i) for i in range(1, 4)]
 funcs = [np.mean, np.var, skew]
 f_names = ['mean', 'var', 'skew']
 
@@ -33,7 +33,6 @@ for i in scalars:
             else:
                 mcs_moments[naming] = round(f(predicted), 3)
 
-
 pem_moments = {}
 for i, pem in enumerate(pem_analysis):
     for scalar in scalars:
@@ -45,7 +44,7 @@ for i, pem in enumerate(pem_analysis):
             else:
                 pem_moments[naming] = round(f(data), 3)
 
-locs = [1, 2, 3]
+locs = list(range(1, 4))
 
 summary_pem = {}
 summary_mcs = {}
