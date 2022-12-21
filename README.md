@@ -20,7 +20,9 @@ $ conda env create --file environment.yml
 ```bash
 $ conda activate yildizetal2022
 ```
-5. Install the package using [Poetry](https://python-poetry.org/docs/basic-usage/)
+5. Install [Poetry](https://python-poetry.org/docs/basic-usage/) using the [official installer](https://python-poetry.org/docs/#installing-with-the-official-installer)
+
+6. Install the package using the following command:
 
 ```bash
 $ poetry install
