@@ -4,6 +4,11 @@ Anil Yildiz, Hu Zhao, Julia Kowalski
 
 ----
 
+[![code style: oitnb](https://sourceforge.net/p/oitnb/code/ci/default/tree/_doc/_static/oitnb.svg?format=raw)](https://sourceforge.net/p/oitnb/code)
+
+![](https:/img.shields.io/github/last-commit/yildizanil/frontiers_yildizetal)
+
+![](https://img.shields.io/github/license/yildizanil/frontiers_yildizetal)
 Python package used in the publication *Computationally-feasible uncertainty quantification in model-based landslide risk assessment* submitted to Frontiers in Earth Science: Geohazards and Georisks as part of the research topic *Physics and Modelling of Landslides*.
 
 ## Installation
