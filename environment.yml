@@ -1,17 +1,12 @@
 name: yildizetal2022
 
 dependencies:
-  - ipykernel
-  - matplotlib
-  - numpy
-  - pandas
-  - poetry
   - python
+  - r-base
+  - rpy2
+  - r-robustgasp
+  - matplotlib
+  - ipykernel
   - pyyaml
   - rasterio
-  - rpy2
   - scikit-learn
-  - scipy
-  - setuptools
-  - r-base
-  - r-robustgasp
