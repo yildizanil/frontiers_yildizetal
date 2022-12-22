@@ -4,7 +4,7 @@ import rasterio
 import yaml
 from yaml.loader import SafeLoader
 from pkg_resources import resource_filename
-
+from sklearn import metrics
 
 class Simulations:
     """
@@ -34,7 +34,16 @@ class Simulations:
     """
 
     def __init__(self, name: str):
+        """
+        Initialising Simulations class
 
+        Args:
+            name (str): Name of the simulation set. Can be one of the following: synth, synth_pem, synth_validate, acheron, acheron_pem, acheron_validate
+
+        Raises:
+            TypeError: name must be a string
+            Exception: Invalid set of simulations. It must be synth, synth_pem, synth_validate, acheron, acheron_pem or acheron_validate
+        """
         if not isinstance(name, str):
             raise TypeError('name must be a string')
         if name not in [
@@ -194,7 +203,7 @@ class Simulations:
         return extracted_qoi
 
     def curate_scalars(self, threshold: float, loc_x: float, loc_y: float):
-        """_summary_
+        """ Curates scalar outputs from simulations
 
         Args:
             threshold (float): Threshold value to define the scalars from simulations
@@ -270,5 +279,5 @@ class Simulations:
         if valid_cols is None:
             valid_cols = np.where(unstacked >= threshold, 1, 0).sum(axis=0)
         indices = np.flatnonzero(valid_cols)
-        training = pd.DataFrame(unstacked[:, indices], columns=indices)
+        training = unstacked[:, indices]
         return training, valid_cols

@@ -1,7 +1,7 @@
-from frontiers_yildizetal.emulators import *
+from frontiers_yildizetal.emulators import ScalarEmulators
 from pkg_resources import resource_filename
-import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 acheron = ScalarEmulators('acheron', threshold=0.1, loc_x=1490100, loc_y=5204100)
 
