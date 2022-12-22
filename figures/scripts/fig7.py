@@ -1,8 +1,7 @@
-import frontiers_yildizetal as fy
+from frontiers_yildizetal.ravaflow import Simulations
 from frontiers_yildizetal.emulators import VectorEmulators
 from pkg_resources import resource_filename
 import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
 import rasterio
 
@@ -21,7 +20,7 @@ mcs3_mean, mcs3_sd = synth.predict_vector(input_mcs3)
 mcs3_mean_ma = np.ma.masked_where(mcs3_mean < 0.1, mcs3_mean, copy=True)
 mcs3_sd_ma = np.ma.masked_where(mcs3_mean < 0.1, mcs3_sd, copy=True)
 
-synth_pem = fy.Simulations('synth_pem').create_vector(
+synth_pem = Simulations('synth_pem').create_vector(
     qoi='hmax', threshold=0.1, valid_cols=synth.valid_cols
 )
 

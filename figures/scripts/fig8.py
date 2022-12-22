@@ -1,5 +1,5 @@
 import frontiers_yildizetal as fy
-from frontiers_yildizetal.emulators import VectorEmulators
+from frontiers_yildizetal.emulators.rgasp import VectorEmulators
 from pkg_resources import resource_filename
 import matplotlib.pyplot as plt
 import pandas as pd

@@ -1,11 +1,11 @@
-import frontiers_yildizetal as fy
+from frontiers_yildizetal.ravaflow import Simulations
 import matplotlib.pyplot as plt
 import rasterio
 import numpy as np
 from pkg_resources import resource_filename
 import matplotlib as mpl
 
-synth = fy.Simulations('synth')
+synth = Simulations('synth')
 
 path = 'files/raster/elev.tif'
 dem_path = resource_filename('frontiers_yildizetal', path)

@@ -1,4 +1,4 @@
-import frontiers_yildizetal as fy
+from frontiers_yildizetal.ravaflow import Simulations
 import matplotlib.pyplot as plt
 import rasterio
 import numpy as np
@@ -6,7 +6,7 @@ from pkg_resources import resource_filename
 import matplotlib as mpl
 from rasterio.plot import plotting_extent
 
-ac = fy.Simulations('acheron')
+ac = Simulations('acheron')
 
 path = 'files/raster/hillshade_acheron.tif'
 hill_path = resource_filename('frontiers_yildizetal', path)
