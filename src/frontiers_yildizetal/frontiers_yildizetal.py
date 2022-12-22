@@ -5,6 +5,7 @@ import yaml
 from yaml.loader import SafeLoader
 from pkg_resources import resource_filename
 
+
 class Simulations:
     """
     A class to represent r.avaflow simulations
@@ -78,6 +79,7 @@ class Simulations:
 
         with rasterio.open(self.links['hmax']) as src:
             ia = np.empty((self.size))
+            print('Calculating IA', end='\r')
             for band in range(self.size):
                 valid_cells = np.where(src.read(band + 1) >= threshold, 1, 0)
                 ia_band = np.sum(valid_cells) * self.res ** 2 / 1000000
@@ -106,11 +108,12 @@ class Simulations:
 
         with rasterio.open(self.links['hfin']) as src:
             da = np.empty((self.size))
+            print('Calculating DA', end='\r')
             for band in range(self.size):
                 valid_cells = np.where(src.read(band + 1) >= threshold, 1, 0)
                 da_band = np.sum(valid_cells) * self.res ** 2 / 1000000
                 da[band] = da_band
-            print('DA calculated.', flush=True)
+            print('DA calculated.')
         return da
 
     def calc_dv(self, threshold: float):
@@ -134,12 +137,13 @@ class Simulations:
 
         with rasterio.open(self.links['hfin']) as src:
             dv = np.empty((self.size))
+            print('Calculating DV', end='\r')
             for band in range(self.size):
                 valid_cells = np.where(src.read(band + 1) >= threshold, self.res ** 2, 0)
-                volume = np.multiply(src.read(band), valid_cells)
+                volume = np.multiply(src.read(band + 1), valid_cells)
                 dv_band = round((np.sum(volume) / 1000000), 3)
                 dv[band] = dv_band
-            print('DV calculated.', flush=True)
+            print('DV calculated.')
         return dv
 
     def extract_qoi_at(self, qoi, loc_x, loc_y):
@@ -182,11 +186,11 @@ class Simulations:
                 raise Exception('y-coordinate is out of bounds')
 
             extracted_qoi = np.empty((self.size))
-
+            print('Extracting ' + qoi, end='\r')
             for band in range(self.size):
-                val_qoi = src.read(band)[row, col]
+                val_qoi = src.read(band + 1)[row, col]
                 extracted_qoi[band] = val_qoi
-            print('QoI: ' + qoi + ' extracted.', flush=True)
+            print(qoi + ' extracted.')
         return extracted_qoi
 
     def curate_scalars(self, threshold: float, loc_x: float, loc_y: float):
