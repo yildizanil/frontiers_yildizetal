@@ -8,6 +8,7 @@ dependencies:
   - python
   - pyyaml
   - rasterio
+  - requests
   - rpy2
   - scikit-learn
   - r-base
