@@ -41,7 +41,7 @@ class FigshareData:
         
     def raster_link(self, parameter):
         
-        index_no = self.parameters.index('hmax')
+        index_no = self.parameters.index(parameter)
         url = self.files[index_no]['download_url']
         
         return url

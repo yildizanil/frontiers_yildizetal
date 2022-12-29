@@ -14,10 +14,10 @@ hill_path = resource_filename('frontiers_yildizetal', path)
 with rasterio.open(hill_path, 'r') as hill:
     hill_arr = hill.read(1)
     hill_ma = np.ma.masked_where(hill_arr < -30000, hill_arr, copy=True)
-with rasterio.open(ac.links['hmax'], 'r') as src:
+with rasterio.open(ac.data_import.raster_link('hmax'), 'r') as src:
     hmax = src.read(1)
     hmax_ma = np.ma.masked_where(hmax < 0.1, hmax, copy=True)
-with rasterio.open(ac.links['hfin'], 'r') as src2:
+with rasterio.open(ac.data_import.raster_link('hfin'), 'r') as src2:
     hfin = src2.read(1)
     hfin_ma = np.ma.masked_where(hfin < 0.1, hfin, copy=True)
 

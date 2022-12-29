@@ -5,6 +5,7 @@ import yaml
 from yaml.loader import SafeLoader
 from pkg_resources import resource_filename
 from sklearn import metrics
+from frontiers_yildizetal.utilities import data
 
 class Simulations:
     """
@@ -57,12 +58,10 @@ class Simulations:
             raise Exception(
                 'Invalid set of simulations. It must be synth, synth_pem, synth_validate, acheron, acheron_pem or acheron_validate'
             )
-
         self.name = name
-        filepath = resource_filename(__name__, 'files/download_links.yml')
-        with open(filepath) as f:
-            self.links = yaml.load(f, Loader=SafeLoader)[self.name]
-        with rasterio.open(self.links['hmax']) as src:
+        self.data_import = data.FigshareData(self.name)
+        
+        with rasterio.open(self.data_import.raster_link('hmax')) as src:
             self.size = src.count
             self.res = src.res[0]
             self.bounds = src.bounds
@@ -86,7 +85,7 @@ class Simulations:
         if threshold < 0:
             raise ValueError('threshold cannot be negative')
 
-        with rasterio.open(self.links['hmax']) as src:
+        with rasterio.open(self.data_import.raster_link('hmax')) as src:
             ia = np.empty((self.size))
             print('Calculating IA', end='\r')
             for band in range(self.size):
@@ -115,7 +114,7 @@ class Simulations:
         if threshold < 0:
             raise ValueError('threshold cannot be negative')
 
-        with rasterio.open(self.links['hfin']) as src:
+        with rasterio.open(self.data_import.raster_link('hfin')) as src:
             da = np.empty((self.size))
             print('Calculating DA', end='\r')
             for band in range(self.size):
@@ -144,7 +143,7 @@ class Simulations:
         if threshold < 0:
             raise ValueError('threshold cannot be negative')
 
-        with rasterio.open(self.links['hfin']) as src:
+        with rasterio.open(self.data_import.raster_link('hfin')) as src:
             dv = np.empty((self.size))
             print('Calculating DV', end='\r')
             for band in range(self.size):
@@ -185,7 +184,7 @@ class Simulations:
         if not isinstance(loc_y, (int, float)):
             raise TypeError('y-coordinate (loc_y) must be an integer or a float')
 
-        with rasterio.open(self.links[qoi]) as src:
+        with rasterio.open(self.data_import.raster_link(qoi)) as src:
             row = src.index(loc_x, loc_y)[0]
             col = src.index(loc_x, loc_y)[1]
 
@@ -267,7 +266,7 @@ class Simulations:
         if threshold < 0:
             raise ValueError('threshold cannot be negative')
 
-        with rasterio.open(self.links[qoi]) as src:
+        with rasterio.open(self.data_import.raster_link(qoi)) as src:
             rows = src.height
             cols = src.width
 

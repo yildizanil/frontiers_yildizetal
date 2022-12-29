@@ -59,6 +59,7 @@ class ScalarEmulators:
             raise TypeError('y-coordinate (loc_y) must be an integer or a float')
         
         self.name = name
+        self.sims = Simulations(self.name)
         
         path = 'files/input/input_emulator_' + self.name + '.csv'
         path_validate = 'files/input/input_emulator_' + self.name + '_validate.csv'
@@ -68,12 +69,7 @@ class ScalarEmulators:
         self.input_train = np.genfromtxt(filepath, delimiter=',', skip_header=1)
         self.input_validate = np.genfromtxt(validpath, delimiter=',', skip_header=1)
         
-        path_download = 'files/download_links.yml'
-        filepath_download = resource_filename(__name__, path_download)
-        with open(filepath_download) as f:
-            self.links = yaml.load(f, Loader=SafeLoader)[self.name]
-        
-        self.output = Simulations(self.name).curate_scalars(threshold=threshold, loc_x=loc_x, loc_y=loc_y)
+        self.output = self.sims.curate_scalars(threshold=threshold, loc_x=loc_x, loc_y=loc_y)
 
     def model(self, scalar:str):
         """
@@ -173,16 +169,15 @@ class VectorEmulators:
             raise ValueError("threshold cannot be negative")
         
         self.name = name
-        filepath = resource_filename(__name__, 'files/download_links.yml')
-        with open(filepath) as f:
-            self.links = yaml.load(f, Loader=SafeLoader)[self.name]
-        with rasterio.open(self.links['hmax']) as src:
+        self.sims = Simulations(self.name)
+
+        with rasterio.open(self.sims.data_import.raster_link('hmax')) as src:
             self.size = src.count
             self.res = src.res[0]
             self.bounds = src.bounds
         self.qoi = qoi
         self.threshold = threshold
-        self.vector, self.valid_cols = Simulations(self.name).create_vector(qoi=qoi, threshold=threshold)
+        self.vector, self.valid_cols = self.sims.create_vector(qoi=qoi, threshold=threshold)
         self.vector_validate, self.valid_cols = Simulations((self.name + '_validate')).create_vector(qoi=qoi, threshold=threshold, valid_cols=self.valid_cols)
         
         path = 'files/input/input_emulator_' + self.name + '.csv'
@@ -193,7 +188,7 @@ class VectorEmulators:
         self.input_train = np.genfromtxt(filepath, delimiter=',', skip_header=1)
         self.input_validate = np.genfromtxt(validpath, delimiter=',', skip_header=1)
         
-        with rasterio.open(self.links[qoi]) as src:
+        with rasterio.open(self.sims.data_import.raster_link(qoi)) as src:
             self.size = src.count
             self.rows = src.height
             self.cols = src.width

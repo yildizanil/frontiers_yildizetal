@@ -12,10 +12,10 @@ dem_path = resource_filename('frontiers_yildizetal', path)
 
 with rasterio.open(dem_path, 'r') as src:
     dem = src.read(1)
-with rasterio.open(synth.links['hmax'], 'r') as src:
+with rasterio.open(synth.data_import.raster_link('hmax'), 'r') as src:
     hmax = src.read(1)
     hmax_ma = np.ma.masked_where(hmax < 0.1, hmax, copy=True)
-with rasterio.open(synth.links['hfin'], 'r') as src:
+with rasterio.open(synth.data_import.raster_link('hfin'), 'r') as src:
     hfin = src.read(1)
     hfin_ma = np.ma.masked_where(hfin < 0.1, hfin, copy=True)
 
