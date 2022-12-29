@@ -1,12 +1,15 @@
 # Computationally-feasible uncertainty quantification in model-based landslide risk assessment
 
-Anil Yildiz, Hu Zhao, Julia Kowalski
+Anil Yildiz $^{1, *}$, Hu Zhao $^1$, Julia Kowalski $^1$
+
+$^1$ Methods for Model-based Development in Computational Engineering, RWTH Aachen University, Aachen, Germany
+$^*$ Corresponding author: [yildiz@mbd.rwth-aachen.de](mailto:yildiz@mbd.rwth-aachen.de)
+
+[![doi](https://img.shields.io/badge/doi-10.3389%2Ffeart.2022.1032438-success)](https://dx.doi.org/10.3389/feart.2022.1032438)
 
 ----
 
-![code style: oitnb](https://sourceforge.net/p/oitnb/code/ci/default/tree/_doc/_static/oitnb.svg?format=raw)
-
-Python package used in the publication *Computationally-feasible uncertainty quantification in model-based landslide risk assessment* submitted to Frontiers in Earth Science: Geohazards and Georisks as part of the research topic *Physics and Modelling of Landslides*.
+This repository presents the publication titled [Computationally-feasible uncertainty quantification in model-based landslide risk assessment](https://www.frontiersin.org/articles/10.3389/feart.2022.1032438) published in [Frontiers in Earth Science: Geohazards and Georisks](https://www.frontiersin.org/research-topics/26949/physics-and-modelling-of-landslides) in a Python package format. This package helps to reproduce the results, and perform further analyses.
 
 ## Installation
 
@@ -24,7 +27,7 @@ $ conda activate yildizetal2022
 ```
 5. Install [Poetry](https://python-poetry.org/docs/basic-usage/) using the [official installer](https://python-poetry.org/docs/#installing-with-the-official-installer)
 
-6. Install the package using the following command:
+6. Install the package using the following command
 
 ```bash
 $ poetry install
@@ -36,7 +39,7 @@ $ poetry install
 
 ## License
 
-`frontiers_yildizetal` was created by Anil Yildiz. It is licensed under the terms of the GNU General Public License v3.0 license.
+`frontiers_yildizetal` was created by [Anil Yildiz](https://www.anilyildiz.info). It is licensed under the terms of the GNU General Public License v3.0 license. The paper is published under a [CC BY 4.0 license](https://creativecommons.org/licenses/by/4.0/).
 
 ## Credits
 
