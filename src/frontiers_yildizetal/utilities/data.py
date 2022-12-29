@@ -1,6 +1,7 @@
 # Task 2
 import requests
 import numpy as np
+from pkg_resources import resource_filename
 
 class FigshareData:
     """
@@ -46,3 +47,11 @@ class FigshareData:
         
         return url
         
+class InputData:
+    def __init__(self, name, analysis):
+        self.name = name
+        self.analysis = analysis
+        
+        path = 'utilities/input/' + self.name + '_' + self.analysis + '.csv'
+        filepath = resource_filename('frontiers_yildizetal', path)
+        self.data = np.genfromtxt(filepath, delimiter=',', skip_header=1)

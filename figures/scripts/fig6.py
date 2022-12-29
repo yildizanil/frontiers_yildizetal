@@ -1,13 +1,10 @@
 from frontiers_yildizetal.emulators import ScalarEmulators
-from pkg_resources import resource_filename
+from frontiers_yildizetal.utilities import data
 import matplotlib.pyplot as plt
 import numpy as np
 
 acheron = ScalarEmulators('acheron', threshold=0.1, loc_x=1490100, loc_y=5204100)
-
-path = 'files/input/input_mcs3_acheron.csv'
-filepath = resource_filename('frontiers_yildizetal', path)
-input_mcs3 = np.genfromtxt(filepath, delimiter=',', skip_header=1)
+input_mcs3 = data.InputData('acheron','mcs3').data
 
 scalars = list(acheron.output.keys())
 

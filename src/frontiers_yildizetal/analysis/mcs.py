@@ -2,7 +2,7 @@ from frontiers_yildizetal.ravaflow import Simulations
 from frontiers_yildizetal.emulators import ScalarEmulators
 from scipy.stats import skew
 import numpy as np
-from pkg_resources import resource_filename
+from frontiers_yildizetal.utilities import data
 
 def moments(name:str):
     """
@@ -42,10 +42,7 @@ def moments(name:str):
         for key in scalars:
             moments[n][key] = []
             for j, k in enumerate(mcss):
-                path = 'files/input/input_' + k + '_' + name + '.csv'
-                filepath = resource_filename('frontiers_yildizetal', path)
-                input_test = np.genfromtxt(filepath, delimiter=',', skip_header=1)
-                
+                input_test = data.InputData(name=emulator.name, analysis=k).data
                 predicted = emulator.predict_scalar(key, input_test)[0]
                 
                 if f is np.var:

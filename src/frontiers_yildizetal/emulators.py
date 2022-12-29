@@ -7,6 +7,7 @@ from pkg_resources import resource_filename
 from sklearn import metrics
 import os
 from frontiers_yildizetal.ravaflow import Simulations
+from frontiers_yildizetal.utilities import data
 
 import os
 if os.name == 'nt':
@@ -61,13 +62,8 @@ class ScalarEmulators:
         self.name = name
         self.sims = Simulations(self.name)
         
-        path = 'files/input/input_emulator_' + self.name + '.csv'
-        path_validate = 'files/input/input_emulator_' + self.name + '_validate.csv'
-        filepath = resource_filename(__name__, path)
-        validpath = resource_filename(__name__, path_validate)
-        
-        self.input_train = np.genfromtxt(filepath, delimiter=',', skip_header=1)
-        self.input_validate = np.genfromtxt(validpath, delimiter=',', skip_header=1)
+        self.input_train = data.InputData(self.name, 'emulator').data
+        self.input_validate = data.InputData((name + '_validate'), 'emulator').data
         
         self.output = self.sims.curate_scalars(threshold=threshold, loc_x=loc_x, loc_y=loc_y)
 
@@ -180,13 +176,8 @@ class VectorEmulators:
         self.vector, self.valid_cols = self.sims.create_vector(qoi=qoi, threshold=threshold)
         self.vector_validate, self.valid_cols = Simulations((self.name + '_validate')).create_vector(qoi=qoi, threshold=threshold, valid_cols=self.valid_cols)
         
-        path = 'files/input/input_emulator_' + self.name + '.csv'
-        path_validate = 'files/input/input_emulator_' + self.name + '_validate.csv'
-        filepath = resource_filename(__name__, path)
-        validpath = resource_filename(__name__, path_validate)
-        
-        self.input_train = np.genfromtxt(filepath, delimiter=',', skip_header=1)
-        self.input_validate = np.genfromtxt(validpath, delimiter=',', skip_header=1)
+        self.input_train = data.InputData(self.name, 'emulator').data
+        self.input_validate = data.InputData((name + '_validate'), 'emulator').data
         
         with rasterio.open(self.sims.data_import.raster_link(qoi)) as src:
             self.size = src.count

@@ -1,5 +1,6 @@
-import frontiers_yildizetal as fy
-from frontiers_yildizetal.emulators.rgasp import VectorEmulators
+from frontiers_yildizetal.ravaflow import Simulations
+from frontiers_yildizetal.emulators import VectorEmulators
+from frontiers_yildizetal.utilities import data
 from pkg_resources import resource_filename
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -14,16 +15,13 @@ with rasterio.open(hill_path, 'r') as hill:
 hill_ma = np.ma.masked_where(hill_arr < -30000, hill_arr, copy=True)
 
 ac = VectorEmulators('acheron', qoi='hmax', threshold=0.1)
-
-path = 'files/input/input_mcs3_acheron.csv'
-filepath = resource_filename('frontiers_yildizetal', path)
-input_mcs3 = np.genfromtxt(filepath, delimiter=',', skip_header=1)
+input_mcs3 = data.InputData('acheron','mcs3').data
 
 mcs3_mean, mcs3_sd = ac.predict_vector(input_mcs3)
 mcs3_mean_ma = np.ma.masked_where(mcs3_mean < 0.1, mcs3_mean, copy=True)
 mcs3_sd_ma = np.ma.masked_where(mcs3_mean < 0.1, mcs3_sd, copy=True)
 
-ac_pem = fy.Simulations('acheron_pem').create_vector(
+ac_pem = Simulations('acheron_pem').create_vector(
     qoi='hmax', threshold=0.1, valid_cols=ac.valid_cols
 )
 

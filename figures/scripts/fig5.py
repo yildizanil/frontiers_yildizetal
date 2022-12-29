@@ -1,13 +1,10 @@
 from frontiers_yildizetal.emulators import ScalarEmulators
-from pkg_resources import resource_filename
+from frontiers_yildizetal.utilities import data
 import matplotlib.pyplot as plt
 import numpy as np
 
 synth = ScalarEmulators('synth', threshold=0.1, loc_x=1000, loc_y=2000)
-
-path = 'files/input/input_mcs3_synth.csv'
-filepath = resource_filename('frontiers_yildizetal', path)
-input_mcs3 = np.genfromtxt(filepath, delimiter=',', skip_header=1)
+input_mcs3 = data.InputData('synth','mcs3').data
 
 scalars = list(synth.output.keys())
 
