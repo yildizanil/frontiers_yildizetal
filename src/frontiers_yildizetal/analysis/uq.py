@@ -5,6 +5,24 @@ import numpy as np
 from frontiers_yildizetal.utilities import data
 
 class Moments:
+    """
+    A class to represent moments, i.e. mean, variance and skewness, for UQ analysis
+    
+    Arguments:
+        name (str): name of the set. It can be either synth or acheron
+        
+    Attributes:
+        locs (list): coordinates at which hmax and vmax are extracted.
+        
+    Methods:
+        get_mcs: returns the moments calculated with Monte Carlo simulations
+        get_pem: returns the moments calculated with Point Estimate Method
+
+    Raises:
+        TypeError: name must be a string
+        ValueError: name must be either synth or acheron
+
+    """
     funcs = {'mean':np.mean, 'var':np.var, 'skew':skew}
 
     def __init__(self, name:str):
@@ -17,6 +35,12 @@ class Moments:
         self.locs = loc_all[self.name]
         
     def get_mcs(self):
+        """
+        Calculates the three moments using Monte Carlo Simulations facilitated with Gaussian Process Emulation
+
+        Returns:
+            mcs_moments (dict): A dictionary storing the moments according to scalars
+        """
         mcss = ['mcs' + str(i) for i in range(1, 4)]
         emulator = ScalarEmulators(self.name, 0.1,
                                    self.locs[0],
@@ -42,6 +66,12 @@ class Moments:
         return mcs_moments
     
     def get_pem(self):
+        """
+        Calculates the three moments using Point Estimate Method
+        
+        Returns:
+            pem_moments (dict): A dictionary storing the moments according to scalars
+        """
         pems = ['pem' + str(i) for i in range(1, 4)]
         scalars = Simulations((self.name + '_pem')).curate_scalars(0.1, self.locs[0], self.locs[1])
     
