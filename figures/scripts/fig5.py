@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 synth = ScalarEmulators('synth', threshold=0.1, loc_x=1000, loc_y=2000)
-input_mcs3 = data.InputData('synth','mcs3').data
+input_mcs3 = data.load_input('synth','mcs3')
 
 scalars = list(synth.output.keys())
 

@@ -15,7 +15,7 @@ with rasterio.open(hill_path, 'r') as hill:
 hill_ma = np.ma.masked_where(hill_arr < -30000, hill_arr, copy=True)
 
 ac = VectorEmulators('acheron', qoi='hmax', threshold=0.1)
-input_mcs3 = data.InputData('acheron','mcs3').data
+input_mcs3 = data.load_input('acheron','mcs3')
 
 mcs3_mean, mcs3_sd = ac.predict_vector(input_mcs3)
 mcs3_mean_ma = np.ma.masked_where(mcs3_mean < 0.1, mcs3_mean, copy=True)

@@ -12,7 +12,7 @@ with rasterio.open(dem_path, 'r') as src:
     dem = src.read(1)
 
 synth = VectorEmulators('synth', qoi='hmax', threshold=0.1)
-input_mcs3 = data.InputData('synth','mcs3').data
+input_mcs3 = data.load_input('synth','mcs3')
 
 mcs3_mean, mcs3_sd = synth.predict_vector(input_mcs3)
 mcs3_mean_ma = np.ma.masked_where(mcs3_mean < 0.1, mcs3_mean, copy=True)

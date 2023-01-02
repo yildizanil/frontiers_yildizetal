@@ -42,7 +42,7 @@ def moments(name:str):
         for key in scalars:
             moments[n][key] = []
             for j, k in enumerate(mcss):
-                input_test = data.InputData(name=emulator.name, analysis=k).data
+                input_test = data.load_input(name=emulator.name, analysis=k)
                 predicted = emulator.predict_scalar(key, input_test)[0]
                 
                 if f is np.var:

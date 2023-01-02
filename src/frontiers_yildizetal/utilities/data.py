@@ -47,11 +47,34 @@ class FigshareData:
         
         return url
         
-class InputData:
-    def __init__(self, name, analysis):
-        self.name = name
-        self.analysis = analysis
-        
-        path = 'utilities/input/' + self.name + '_' + self.analysis + '.csv'
-        filepath = resource_filename('frontiers_yildizetal', path)
-        self.data = np.genfromtxt(filepath, delimiter=',', skip_header=1)
+def load_input(name:str, analysis:str) -> np.ndarray:
+    """
+    Imports the input training dataset
+
+    Args:
+        name (str): name of the set, i.e. synth, synth_validate, acheron, or acheron_validate
+        analysis (str): analysis to conduct, i.e. mcs1, mcs2, mcs3 or emulator
+
+    Raises:
+        TypeError: name should be a string
+        TypeError: analysis should be a string
+        Exception: Invalid name. It must be synth, synth_validate, acheron, or acheron_validate
+        Exception: Invalid analysis. It must be mcs1, mcs2, mcs3 or emulator
+
+    Returns:
+        np.ndarray: A Numpy array storing the input training dataset
+    """
+    if not isinstance(name,str):
+        raise TypeError('name should be a string')
+    if not isinstance(analysis, str):
+        raise TypeError('analysis should be a string')
+    if not name in ['synth', 'acheron', 'synth_validate', 'acheron_validate']:
+        raise Exception('Invalid name. It must be synth, synth_validate, acheron, or acheron_validate')
+    if not analysis in ['mcs1', 'mcs2', 'mcs3', 'emulator']:
+        raise Exception('Invalid analysis. It must be mcs1, mcs2, mcs3 or emulator')
+    
+    path = 'utilities/input/' + name + '_' + analysis + '.csv'
+    filepath = resource_filename('frontiers_yildizetal', path)
+    data = np.genfromtxt(filepath, delimiter=',', skip_header=1)
+    
+    return data

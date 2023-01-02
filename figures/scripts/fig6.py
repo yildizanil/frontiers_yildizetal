@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 acheron = ScalarEmulators('acheron', threshold=0.1, loc_x=1490100, loc_y=5204100)
-input_mcs3 = data.InputData('acheron','mcs3').data
+input_mcs3 = data.load_input('acheron','mcs3')
 
 scalars = list(acheron.output.keys())
 
