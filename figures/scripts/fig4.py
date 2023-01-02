@@ -1,13 +1,13 @@
-from frontiers_yildizetal.analysis import pem, mcs
+from frontiers_yildizetal.analysis import uq
 import numpy as np
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 import string
 
-pem_mom = pem.moments('acheron')
-mcs_mom = mcs.moments('acheron')
+pem_mom = uq.Moments('acheron').get_pem()
+mcs_mom = uq.Moments('acheron').get_mcs()
 
-f_names = list(pem_mom.keys())
+f_names = list(uq.Moments.funcs.keys())
 scalars = list(pem_mom['mean'].keys())
 
 diff_col = {}

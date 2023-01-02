@@ -1,9 +1,5 @@
-import pandas as pd
 import numpy as np
 import rasterio
-import yaml
-from yaml.loader import SafeLoader
-from pkg_resources import resource_filename
 from sklearn import metrics
 import os
 from frontiers_yildizetal.ravaflow import Simulations
@@ -61,6 +57,7 @@ class ScalarEmulators:
         
         self.name = name
         self.sims = Simulations(self.name)
+        self.loc_x, self.loc_y = loc_x, loc_y
         
         self.input_train = data.load_input(self.name, 'emulator')
         self.input_validate = data.load_input((name + '_validate'), 'emulator')
@@ -166,15 +163,16 @@ class VectorEmulators:
         
         self.name = name
         self.sims = Simulations(self.name)
+        self.qoi = qoi
+        self.threshold = threshold
 
         with rasterio.open(self.sims.data_import.raster_link('hmax')) as src:
             self.size = src.count
             self.res = src.res[0]
             self.bounds = src.bounds
-        self.qoi = qoi
-        self.threshold = threshold
+ 
         self.vector, self.valid_cols = self.sims.create_vector(qoi=qoi, threshold=threshold)
-        self.vector_validate, self.valid_cols = Simulations((self.name + '_validate')).create_vector(qoi=qoi, threshold=threshold, valid_cols=self.valid_cols)
+        self.vector_validate, self.valid_cols = Simulations((self.name + '_validate')).create_vector(qoi=self.qoi, threshold=self.threshold, valid_cols=self.valid_cols)
         
         self.input_train = data.load_input(self.name, 'emulator')
         self.input_validate = data.load_input((name + '_validate'), 'emulator')
