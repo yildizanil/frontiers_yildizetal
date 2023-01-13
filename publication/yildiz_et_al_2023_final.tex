@@ -1,0 +1,379 @@
+% for details on the frontiers template refer to frontiers_template in this folder
+\documentclass[utf8]{FrontiersinHarvard} 
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{url,hyperref,lineno,microtype,subcaption}
+\usepackage[onehalfspacing]{setspace}
+\usepackage[normalem]{ulem}
+\usepackage{soul}
+\linenumbers
+
+\def\keyFont{\fontsize{8}{11}\helveticabold }
+\def\firstAuthorLast{Yildiz {et~al.}} 
+
+\def\Authors{Anil Yildiz\,$^{1,*}$, Hu Zhao\,$^{1}$ and Julia Kowalski\,$^{1}$}
+
+\def\Address{$^{1}$Methods for Model-based Development in Computational Engineering, RWTH Aachen University, Aachen, Germany}
+% The Corresponding Author should be marked with an asterisk
+% Provide the exact contact address (this time including street name and city zip code) and email of the corresponding author
+\def\corrAuthor{Anil Yildiz}
+\def\corrEmail{yildiz@mbd.rwth-aachen.de}
+
+\begin{document}
+\onecolumn
+\firstpage{1}
+
+\title[Uncertainty quantification in landslide risk]{Computationally-feasible uncertainty quantification in model-based landslide risk assessment}
+
+% next block is automatically populated
+\author[\firstAuthorLast ]{\Authors} 
+\address{} 
+\correspondance{} 
+\extraAuth{}% If there are more than 1 corresponding author, comment this line and uncomment the next one.
+%\extraAuth{corresponding Author2 \\ Laboratory X2, Institute X2, Department X2, Organization X2, Street X2, City X2 , State XX2 (only USA, Canada and Australia), Zip Code2, X2 Country X2, email2@uni2.edu}
+
+
+\maketitle
+
+\begin{abstract}
+%%% Leave the Abstract empty if your article does not require one, please see the Summary Table for full details.
+\section{}
+\textbf{Introduction} Increasing complexity and capacity of computational physics-based landslide run-out modelling yielded highly efficient model-based decision support tools, e.g. landslide susceptibility or run-out maps, or geohazard risk assessments. A reliable, robust and reproducible development of such tools requires a thorough quantification of uncertainties, which are present in every step of computational workflow from input data, such as topography or release zone, to modelling framework used, e.g. numerical error. \textbf{Methodology} Well-established methods from reliability analysis such as Point Estimate Method (PEM) or Monte Carlo Simulations (MCS) can be used to investigate the uncertainty of model outputs. While PEM requires less computational resources, it does not capture all the details of the uncertain output. MCS tackles this problem, but creates a computational bottleneck. A comparative study is presented herein by conducting multiple forward simulations of landslide run-out for a synthetic and a real-world test case, which are used to construct Gaussian process emulators as a surrogate model to facilitate high-throughput tasks. \textbf{Results} It was demonstrated that PEM and MCS provide similar expectancies, while the variance and skewness differ, in terms of post-processed scalar outputs, such as impact area or a point-wise flow height. Spatial distribution of the flow height was clearly affected by the choice of method used in uncertainty quantification. \textbf{Discussion} If only expectancies are to be assessed then one can work with computationally-cheap PEM, yet MCS has to be used when higher order moments are needed. In that case physics-based machine learning techniques, such as Gaussian process emulation, provide strategies to tackle the computational bottleneck. It can be further suggested that computational-feasibility of MCS used in landslide risk assessment can be significantly improved by using surrogate modelling. It should also be noted that the gain in compute time by using Gaussian process emulation critically depends on the computational effort needed to produce the training dataset for emulation by conducting simulations.
+
+\tiny
+\keyFont{ \section{Keywords:}  landslides, debris flows, natural hazards risk assessment, susceptibility maps, numerical simulations, computational geosciences}
+
+\end{abstract}
+
+%\section{Content}
+
+\section{Introduction}
+
+Computational landslide run-out models can predict the spatial evolution of depth and velocity of the failed mass, which is crucial for landslide risk assessment and mitigation, especially for flow-like landslides due to their rapid nature \citep{Cepeda2013,McDougall2017}. Utilising computational landslide run-out models for model-based decision support requires a well-defined, transparent and modular setup of the complete computational value-chain. Such a chain consists of many links, including a digital representation of the topography, the underlying physics-based process model, a numerical solution scheme, the approach to parameter calibration along with the training data it relies on, and concepts used for sensitivity analyses and uncertainty quantification. Challenges in the technical realisation of such integrated workflows have been successfully addressed in the past \citep{Dalbey2008, Aaron2019, Sun2021b, Zhao2021, Aaron2022, Zhao2022}. It will be of crucial importance in the future to increase the efficiency, sustainability and, hence, acceptance of such orchestrated workflows for landslide risk assessment by improving their robustness, reliability and computational-feasibility.
+
+It will be particularly important to assess the reliability of landslide risk assessment by quantifying and managing uncertainties throughout the workflow. This is a challenging task, which requires to consider and structure the \textit{landscape of uncertainties} affecting various steps of the decision-making process. Relevant uncertainty originates from  uncertain model input --- such as the digital elevation model representing the topography \citep{Zhao2020} or release area and volume --- and rheological parameters \citep{Quan2013}. Furthermore, process uncertainty can result from numerical modelling schemes \citep{Schraml2015} or calibration methods \citep{Aaron2019, Aaron2022}. All relevant uncertainties in the computational workflow include aleatoric aspects due to the intrinsic randomness of the process, as well as epistemic uncertainty that is of systemic nature, and might be due to a lack of data. A comprehensive, integrated uncertainty analysis within a georisk assessment framework is an important reminder of the limitations of the knowledge about processes involved, and the need to improve data collection and quality \citep{Eidsvig2014}.
+
+Different methods of reliability analysis have been used in the recent decades both in geohazards research and its practical implementation, to assess the output uncertainty in landslide run-out models due to uncertain input parameters, or to quantify the uncertainty of derived metrics such as the Factor of Safety (FoS). Point Estimate Method (PEM) \citep{Przewlocki2019}, First Order Second Moment method (FOSM) \citep{Kaynia2008}, First Order Reliability Method (FORM) \citep{Sun2021}, and Monte Carlo Simulations (MCS) \citep{Cepeda2013,Liu2019,Brezzi2021} are examples of such methods. \citet{Dalbey2008} presented several standard and new methods for characterising the effect of input data uncertainty on model output for hazardous geophysical mass flows.
+
+PEM is a simple way to determine the expectation (mean), variance, and skewness of a variable that depends on a random input, by evaluating the function at a low number of pre-selected values. Additionally, MCS grants access to the complete probability distribution even in complex problems \citep{Fenton2008}. However, it requires a large number of model evaluations, so-called realisations, at randomly selected inputs following a pre-determined statistical distribution. \citet{Przewlocki2019} used PEM to conduct a probabilistic slope stability analysis of a sea cliff in Poland, and compared the moment estimates with results from MSC. Mean and standard deviation values of FoS yielded similar results, and PEM was favoured as it required a lower number of model realisations, hence lower computational costs for a seemingly similar information outcome. \citet{Tsai2015} also obtained similar estimations by comparing PEM and MSC, but pointed out the effects of correlation between input variables. Earlier works also highlighted the limited feasibility of PEM for an increasing number of input variables, as 2$^n$ estimations are required for $n$ input variables \citep{Christian1999,Christian2002}. Therefore, it is more feasible to handle problems characterised by a low-dimensional input parameter space with PEM, while high-dimensional problems quickly become computationally infeasible.
+
+MCS has also been widely used for practical uncertainty quantification owing to its simplicity of implementation. \citet{Liu2019} and \citet{Ma2022} used MCS to quantify uncertainty in landslide run-out distance due to uncertain soil properties. \citet{Brezzi2021} performed uncertainty quantification of the Sant'Andrea landslide using MCS. They assumed the two friction parameters (Coulomb friction and turbulent friction) in a depth-averaged Voellmy-Salm type approach to follow independent Gaussian distributions, and then studied the induced uncertainty in deposit heights. The major challenge of using MCS for uncertainty quantification in landslide run-out modelling is the high computational cost, as pointed out by many researchers \citep{Dalbey2008, McDougall2017,Aaron2022,Zhao2022}.
+
+As PEM relies on a much lower number of sampling points compared to MCS, the probability distribution function (PDF) of the output cannot be reliably approximated for a general non-linear process model, such as a landslide run-out model in complex topography. MCS provides an approximation of the PDF, but it creates a computational bottleneck when the forward-model is complex and subject to long runtimes. Physics-based machine learning, i.e. creating a surrogate by training a data-driven model with results from a physics-based simulation, can overcome the computational bottleneck of  highly-throughput tasks such as uncertainty quantification. The surrogate model can be sampled, instead of the sampling from the forward model, and hence the PDF of the quantity of interest can be calculated efficiently. An example of physics-based machine learning techniques proven to be effective in many applications related to geohazards is Gaussian Process Emulation, with successful demonstrations in landslide run-out models \citep{Zhao2021, Zhao2022} and stability of infrastructure slopes \citep{Svalova2021}.
+
+This study aims at demonstrating how an uncertainty quantification workflow can be set up effectively, and how this affects the model-based landslide risk assessment. A test case with a synthetic topography and a test case with a real world problem are designed. Multiple forward simulations of both cases are conducted to construct Gaussian process emulators to facilitate MCS. The objectives are (i) comparing the results of PEM-based  simulations and MCS conducted with emulators trained based on datasets from a limited number of simulations in terms of three moments, (ii) investigating the effects of topographic complexity, i.e. synthetic topography vs. the topography of a real-world problem, on the PEM - MCS comparison, and (iii) demonstrating the applicability of emulation techniques for uncertainty quantification.
+
+\section{Materials and Methods}
+
+\subsection{Modelling approach}
+
+Existing physics-based landslide run-out models can be divided into three groups: lumped mass models, particle models, and continuum models. Lumped mass models treat the flow mass as a condensed mass point without spatial variation. This process idealisation greatly reduces the complexity of the problem, but the trade-off is losing spatial variation of flow dynamics, such as internal deformation of the flowing mass. Particle models treat the flow mass as an assembly of particles and simulate the movement of each particle and their interactions in order to characterise flow dynamics. They can directly account for three-dimensional flow behaviours, including an internal re-distribution of mass. Computational realisation of a particle model relies on the definition of conceptual particles, whose size is chosen based on available computational resources, and is often much larger than actual material particles in the landslide. This is beneficial from an implementation point of view, yet requires special attention, when formulating necessary interaction forces which are often challenging to justify and validate. Continuum models treat the flow mass as continuum material, for which governing equations are derived from balance laws closed by tailored, complex constitutive relations. Implementing these in a general three-dimensional context is very challenging and uses a lot of computational resources. A majority of particularly relevant continuum models for practical landslide run-out modelling are formulated within a depth-averaging framework. Depth-averaged continuum models balance computational efficiency, accuracy and interpretability. They can account for internal deformation of the flow material, and provide spatial variation of flow dynamics. Equations \ref{eq:shallowflowm} -- \ref{eq:shallowflowy} describe the governing system of an idealised depth-averaged landslide run-out model:
+\begin{linenomath}
+\begin{gather} 
+\partial_th + \partial_x(hu_x) + \partial_y(hu_y) = 0, \label{eq:shallowflowm} \\
+\partial_t(hu_x) + \partial_x \left( hu^{2}_x + g_n  \frac{h^2}{2} \right) + \partial_y \left( hu_x u_y \right) = g_x h - S_{fx}, \label{eq:shallowflowx}\\
+\partial_t(hu_y) + \partial_x (hu_xu_y) + \partial_y \left( hu^{2}_y + g_n \frac{h^2}{2} \right) = g_yh - S_{fy}. \label{eq:shallowflowy}
+\end{gather}
+\end{linenomath}
+The equations are derived from the mass balance (equation~\ref{eq:shallowflowm}) and momentum balance (equation~\ref{eq:shallowflowx}--\ref{eq:shallowflowy}). The flow height $h$ and the depth-averaged surface tangent flow velocities $u_{x}$ and $u_{y}$ are the state variables. $g_x$, $g_y$, and $g_n$ are components of the gravitational acceleration along surface tangent and in normal directions. The friction terms $S_{fx}$ and $S_{fy}$ depend on the chosen basal rheology. In terms of the Voellmy rheological model, they are defined as:
+\begin{equation} \label{eq:voellmy}
+S_{fi} = \frac{u_{i}}{\left \| \mathbf{u} \right\|} (\mu g_{n}h + \frac{g}{\xi}{ \left \| \mathbf{u} \right\|}^2 ),\quad i \in \{x,y\},
+\end{equation}
+where $\|\mathbf{u}\|$ denotes the magnitude of the flow velocity; $\mu$ and $\xi$ are the dry-Coulomb friction coefficient and turbulent friction coefficient respectively.
+
+Many numerical solvers for depth-averaged landslide run-out models have been developed in the past decades, and \citet{McDougall2017} provides a comprehensive review. A GIS-based open source computational tool developed by \citet{Mergili2017}, r.avaflow v2.3,  is used in this study. It implements a high-resolution total variation diminishing non-oscillatory central differencing scheme to solve equations~\ref{eq:shallowflowm}--\ref{eq:voellmy} given topographic data, initial mass distribution, and Voellmy parameters. It runs on Linux systems, and employs the GRASS GIS software, together with the programming languages Python and C, and the statistical software R. A Digital Elevation Model (DEM) and a release height map are given as input as raster files.
+
+\subsection{Case studies}
+\subsubsection{Synthetic case}
+A simple topography has been created in Python --- similar to the topography generation in AvaFrame \citep{avaframe} --- which is denoted as \textit{synthetic case} herein. Topography consists of a parabolic slope starting at $x=0$ at an altitude of 1332 m, and connecting to a flat land at $x=3000$ at an altitude of 0 m. Extent of the area in $x$ and $y$ directions are 5000 m and 4000 m, respectively, whereas the resolution is 20 m. Release zone was defined as an elliptic cylinder, of which the centre is located at $ \left ( x,y \right ) = $ (600, 2000) with a minor axis of 100 m and a major axis of 200 m. Height at each point within the ellipse was defined as 20 m, which generates a total release volume of 1.432 x 10$^6$ m$^3$. Figure \ref{fig:simple_dem}A illustrates the maximum flow height map from a simulation of synthetic case, while figure \ref{fig:simple_dem}B shows the deposit height from the same simulation.
+
+\subsubsection{Acheron rock avalanche}
+
+A real-world case is chosen to compare the differences in uncertainty quantification with the synthetic case. Radiocarbon testing dates the occurrence of Acheron rock avalanche --- located near Canterbury, New Zealand --- approximately 1100 years before present, and it may have been triggered by seismic activity \citep{Smith2006}. The deposit area was estimated to be 0.72 x 10$^6$ m$^2$ using a GPS outline of the deposit , while the deposit volume was estimated as 8.9 x 10$^6$ m$^3$ using an estimated mean depth derived from observed and estimated thicknesses for different morphological zones \citep{Smith2012}. DEM file and the release height map are obtained from Mergili and Pudasaini (2014--2021)\footnote{Mergili, M., Pudasaini, S.P., 2014--2021. r.avaflow - The mass flow simulation tool. https://www.avaflow.org. Accessed on 2022-07-12}, which gives an initial release volume of 6.4 x 10$^6$ m$^3$. Figure \ref{fig:acheron_dem} presents the shaded relief of the area, together with a map of maximum flow height (see figure \ref{fig:acheron_dem}A) and deposit height (see figure \ref{fig:acheron_dem}B) from a random simulation of Acheron rock avalanche.
+
+\subsection{Gaussian process emulation}
+\label{sec:method_GP}
+
+The main problem of applying MCS for uncertainty quantification in landslide run-out modelling is its high computational cost. The runtime of the landslide run-out model is one of the key drivers of computational cost in classical MCS, as it scales with the number of forward evaluations. 
+Gaussian process emulation has been used in recent years to build cheap-to-evaluate emulators to replace expensive-to-evaluate computational models in the framework of uncertainty quantification, such as \citet{Sun2021b}, \citet{Zeng2021}, and \citet{Zhao2022}. A Gaussian process emulator is a statistical approximation of a simulation model, built based on input and output data of a small number of simulation runs. Once an emulator is constructed, it provides prediction of simulation output at a new input point almost instantly, together with an assessment of the prediction uncertainty. This emulator-induced uncertainty can be taken into account in the framework of uncertainty quantification.
+
+Let $y=f(\mathbf{x})$ denote a simulator where $y$ represents a scalar output depending on a $p$-dimensional input $\mathbf{x}$. Assuming that the simulator is a realisation of a Gaussian process with a mean function $m(\cdot)$ and a kernel function $k(\cdot,\cdot)$, namely
+\begin{linenomath}
+\begin{equation}
+f(\cdot) \sim \mathcal{N}(m(\cdot), k(\cdot,\cdot)), \label{eq:GPprior}
+\end{equation}
+\end{linenomath}
+a Gaussian process emulator can be built based on the input-output data $\mathcal{D}$ of $n$ simulation runs, namely $\mathcal{D}=\{\mathbf{x}_i, y_i\}_{i=1}^{n}$. At any new input point $\mathbf{x}^\ast$, the approximated output $y^\ast$ follows a Gaussian distribution given by
+\begin{linenomath}
+\begin{gather}
+y^\ast  \sim  \mathcal{N}
+\left(m^{\prime}(\mathbf{x}^\ast), k^{\prime}(\mathbf{x}^\ast,\mathbf{x}^\ast) \right),\label{eq:conditionalGaussian}\\
+m^{\prime}(\mathbf{x}^\ast)=m(\mathbf{x}^\ast) +\mathbf{k}^T(\mathbf{x}^\ast) \mathbf{K}^{-1} \left(y_1-m(\mathbf{x}_1), \ldots, y_n-m(\mathbf{x}_n) \right)^T, \label{eq:conditionalGaussianM}\\
+k^{\prime}(\mathbf{x}^\ast,\mathbf{x}^\ast) = k(\mathbf{x}^\ast,\mathbf{x}^\ast)-\mathbf{k}^T(\mathbf{x}^\ast) \mathbf{K}^{-1} \mathbf{k}(\mathbf{x}^\ast). \label{eq:conditionalGaussianC}
+\end{gather}
+\end{linenomath}
+The symbol $\mathbf{K}$ denotes the $n \times n$ covariance matrix of which the $(i,j)$-th entry $\mathbf{K}_{ij}=k(\mathbf{x}_i,\mathbf{x}_j)$ and the symbol $\mathbf{k}(\mathbf{x}^\ast)=\left[k(\mathbf{x}^\ast,\mathbf{x}_1), \ldots, k(\mathbf{x}^\ast,\mathbf{x}_n) \right]^T$.
+
+\textit{RobustGaSP} package developed by \citet{Gu2019} is used in this study to build emulators. It provides robust Gaussian process emulation for both single-variate \citep{Gu2018}, i.e. one simulation producing one scalar output, and multi-variate simulators \citep{Gu2016}, i.e. one simulation producing high-dimensional output. Training and validation datasets of each case were generated from outputs of both cases simulated with r.avaflow 2.3. 100 simulations for training, and 20 additional simulations for validation of vector emulators were run for synthetic case and Acheron rock avalanche separately. Dry-Coulomb friction coefficient $\left ( \mu \right )$, turbulent friction coefficient $\left ( \xi \right )$, and release volume $\left ( v_o \right )$ were chosen as uncertain input variables. The friction coefficients are rather conceptual than physical \citep{Fischer2015} and rely on back-analysing past events where field data are available. The calibrated results are often ranges \citep{Zhao2021} or probability density functions \citep{Quan2013}. In this study, ranges of friction coefficients were chosen as $\mu = [0.02, 0.3]$, $\xi = [100, 2200]$ m/s$^2$ according to \citet{Zhao2021}. The release volume of a future landslide event is hardly predictable. Uncertainty in $v_o$ were defined by multiplying the release height map with a coefficient $k$, which is assumed to vary between 0.5 and 1.5 in this study. Parameter combinations were generated using Latin Hypercube sampling by maximising the minimum distance between points. Datasets were extracted from simulation results after training, and scalar outputs, e.g. impact area, deposit area, deposit volume, and vector outputs, e.g flow height or flow velocity in each cell, were defined.
+
+\subsection{Uncertainty analysis}
+\label{sec:uncertainty}
+
+\subsubsection{Point estimate method}
+\label{sec:method_pem}
+
+Any scalar output $y(\mathbf{s},t)$ --- either aggregated, such as impact area, deposit area or deposit volume, or point-wise flow height, flow velocity, or flow pressure --- in space ($\mathbf{s}$) and time ($t$), from the landslide run-out simulations can be expressed as a function of three uncertain input variables as shown in equation \ref{eq:model}.
+
+\begin{equation}
+    y\left ( \mathbf{s}, t \right)= f \left( \mu, \xi, v_o \right )
+    \label{eq:model}
+\end{equation}
+
+Assuming that the input variables are not correlated and skewness is 0, locations of sampling points of each variable correspond to mean $\pm$ standard deviation. This results in 8 sampling points with equal weights for three input variables to evaluate the output function $y$ and calculate the three moments of the output, i.e. mean, variance, skewness. PEM were executed three times with different coefficient of variation ($COV$), i.e. 10\%, 25\% and 50\%. Table \ref{tab:pem} shows the assumed mean, which was chosen as the central point of the ranges defined in section \ref{sec:method_GP}, and standard deviations for the input variables used in the analyses, PEM 1, PEM 2, and PEM 3.
+
+\subsubsection{Monte Carlo Simulations}
+\label{sec:method_mcs}
+
+Parameter combinations for MCS were sampled from truncated multivariate normal distribution using the R package, \textit{tmvtnorm} \citep{RJ-2010-005}. Points of truncation were chosen as the ranges given in section \ref{sec:method_GP}. Three sets of MCS were conducted similarly to the PEM, i.e. mean value is the central point of the range and $COV$ is chosen arbitrarily as 10\% (MCS 1), 25\% (MCS 2), and 50\% (MCS 3) to represent different levels of uncertainty in input variables. 10000 parameter sets were generated for each MCS analysis, and the outputs are estimated using the emulators defined in section \ref{sec:method_GP}.
+
+\section{Results}
+\label{sec:res}
+Simulation outputs used in this study can be found in \citet{yildizetal}, and the general workflow, as well as the scripts to reproduce the figures can be found in the Git repository presented in \citet{yildizetalgit}.
+
+\subsection{r.avaflow simulations}
+\label{sec:res_sims}
+
+A total of 100 simulations of the synthetic case and a separate 100 simulations for Acheron rock avalanche have been used to calculate the scalar outputs, and to extract vector outputs. Quantities of interest ($QoI$) derived from the simulations are impact area, deposit area and deposit volume. In addition to the derived ones, direct simulation outputs, i.e. maximum flow height ($h_{max}$) and maximum flow velocity ($v_{max}$) at a predefined cell is extracted from the simulations. Point of extraction was chosen arbitrarily as $\left( x, y \right) = $ (1000, 2000) for the synthetic case, and as (1490100, 5204100) for Acheron rock avalanche. These points were picked among those which had a value higher than a threshold, e.g. a maximum flow height of 0.1 m, from all simulations.
+
+Evolution of a simulation in synthetic case can be summarised as a rather constrained flow, with a limited lateral spread at the upper section of the slope, and a more pronounced lateral spread close to the transition to the flat land (See figure \ref{fig:simple_dem}A). As no stopping criteria was defined, the failed mass accumulates mostly around the toe of the slope (See figure \ref{fig:simple_dem}B). Mean values $\pm$ standard deviations of the impact area, deposit area and deposit volume were (2.39 $\pm$ 0.37) x 10$^6$ m$^2$, (1.22 $\pm$ 0.22) x 10$^6$ m$^2$ and (1.37 $\pm$ 0.41) x 10$^6$ m$^3$, respectively. Ranges of $v_{max}$ and $h_{max}$ at $\left( x, y \right) = $ (1000, 2000) are 24.9 -- 63.4 m/s and 7.18 -- 14.4 m, with mean values of 47.7 m/s and 11.0 m, respectively. 
+
+Flow path of Acheron rock avalanche can be generalised based on the simulations conducted in this paper as an initially relatively straight path, followed by a sharp turn and extending into the valley (See figure \ref{fig:acheron_dem}A). Similar to synthetic case, 100 simulations of Acheron rock avalanche were run, and the same scalar outputs were calculated or extracted. Mean values $\pm$ standard deviations of the impact area, deposit area and deposit volume were (2.78 $\pm$ 0.91) x 10$^6$ m$^2$, (1.45 $\pm$ 0.42) x 10$^6$ m$^2$ and (6.28 $\pm$ 1.83) x 10$^6$ m$^3$, respectively. $v_{max}$ and $h_{max}$ at $\left( x, y \right) = $ (1490100, 5204100) have mean values of 32.2 m/s and 42.2 m, with standard deviations of 6.2 m/s and 6.4 m.
+
+\subsection{Emulation}
+\label{sec:res_em}
+
+Gaussian process emulation has been used in this study in order to facilitate the prediction of many scalar outputs for MCS analysis. Once the training datasets consisting of scalar outputs described in section \ref{sec:res_sims} are generated, the trained emulators are first validated with leave-one-out cross-validation technique. Table \ref{tab:scalar_emulator} presents the validation results of scalar emulators, i.e. mean absolute percentage error ($MAPE$), normalised root-mean-square error ($nRMSE$), and coefficient of determination ($R^2$) values for both cases. Emulators trained for synthetic case produced very low percentage-based errors, i.e. maximum $MAPE$ and $nRMSE$ was 1.609\% and 1.996\%, respectively, while the $R^2$ values were around 0.99. The lowest prediction quality was obtained for maximum flow height at $\left( x, y \right) = $ (1000, 2000) in synthetic case. Emulators trained with derived scalar outputs, i.e. impact area, deposit area and deposit volume, of Acheron rock avalanche yielded similar model performance as the synthetic case. Relatively lower $R^2$ values, approximately 0.97, and higher $MAPE$ and $nRMSE$ values were obtained for $v_{max}$ and $h_{max}$ at $\left( x, y \right) = $ (1490100, 5204100). Lowest prediction performance for Acheron rock avalanche was for maximum flow velocity at the given point.
+
+Prediction quality of the vector emulators both for synthetic case and Acheron rock avalanche has been evaluated using testing data from additional 20 simulations. $P_\text{CI}(95\%)$, defined by \citet{Gu2016}, is chosen as the diagnostic for vector emulators. It represents the proportion of testing outputs that lie in emulator-based 95\% credible intervals. $P_\text{CI}(95\%)$ of the vector emulator for point-wise maximum flow height is 83.8\% and 85.3\% for synthetic case and Acheron rock avalanche respectively; $P_\text{CI}(95\%)$ of the vector emulator for point-wise maximum flow velocity is 86.3\% and 89.1\% for synthetic case and Acheron rock avalanche respectively.
+
+\subsection{Uncertainty analysis}
+\label{sec:res_uncertain}
+
+Uncertainty of model outputs were investigated by conducting PEM and MCS with three different $COV$, a comparison has been made in terms of the three moments, i.e. mean, variance, and skewness, of the scalar outputs. Figure \ref{fig:synth_moment_comparison} presents the comparison for the synthetic case. If the uncertainty of the model outputs is assessed via PEM, similar mean values are obtained even though the $COV$ is varied from 10\% up to 50\%. Differences were higher for $v_{max}$ and $h_{max}$ (See figures \ref{fig:synth_moment_comparison}D and \ref{fig:synth_moment_comparison}E). An increase of variance with increasing $COV$ is evident for all outputs produced by PEM, whereas no clear relationship can be defined for skewness. For example, the skewness of impact area and deposit area increased with increasing $COV$, whereas the deposit volume, $v_{max}$ and $h_{max}$ had nearly no skewness if analysed by PEM.
+
+Similar to PEM, MCS at all $COV$ produced similar mean values and increasing variance with increasing $COV$ for all scalar outputs. No overall trend can be observed in skewness of the outputs generated via MCS. If both techniques are compared, no significant difference is present in mean values. PEM produced higher variances especially at the highest $COV$, while --- similar to previous comparisons --- no generalisations can be made for skewness. It should be noted that there is a change from a slightly positive skewness to negative skewness for $v_{max}$ and $h_{max}$, if the method is switched from PEM to MCS. Other scalar outputs had rather arbitrary changes between methods, even though slightly lower values are observed for impact area and deposit area.
+
+Figure \ref{fig:ac_moment_comparison} presents three moments of the same scalar outputs from Acheron rock avalanche. Similar patterns to data from synthetic case are observed in figure \ref{fig:ac_moment_comparison}. Mean values of the outputs are similar between different methods and levels of $COV$. Variance increases in both methods with increasing $COV$, while the values obtained from MCS is lower than those from PEM.
+
+Figure \ref{fig:simple_mcs3} illustrates the synthetic case results of the MCS analysis at $COV$ of 50\% in terms of the five scalar outputs -- the impact area, deposit area, deposit volume, $v_{max}$ and $h_{max}$ at $\left( x, y \right) = $ (1000, 2000). The first three columns show the relationships of the scalar outputs with respect to the three uncertain parameters. The last column shows the histograms of each scalar output. Figure \ref{fig:acheron_mcs3} presents the corresponding results of Acheron rock avalanche. Observations from figures \ref{fig:simple_mcs3} and \ref{fig:acheron_mcs3} can be generalised as follows:
+
+\begin{itemize}
+    \item the impact area and deposit area decrease with increasing dry-Coulomb friction coefficient and increases with increasing release volume (see figures \ref{fig:simple_mcs3}A -- B and \ref{fig:acheron_mcs3}A -- B),
+    \item the deposit volume is proportional to the release volume and has almost no dependence on the dry-Coulomb and turbulent friction coefficients (see figures \ref{fig:simple_mcs3}C and \ref{fig:acheron_mcs3}C),
+    \item the point-wise maximum flow velocity decreases with increasing dry-Coulomb friction coefficient and has little dependence on the release volume (see figures \ref{fig:simple_mcs3}D and \ref{fig:acheron_mcs3}D),
+    \item the point-wise maximum flow height increases with increasing release volume and has little dependence on the dry-Coulomb and turbulent friction coefficient (see figures \ref{fig:simple_mcs3}E and \ref{fig:acheron_mcs3}E).
+\end{itemize} 
+
+Differences between the two cases can be noted as (1) the deposit area has a clear negative relationship with the dry-Coulomb friction coefficient in Acheron rock avalanche, but the trend is hardly visible for the synthetic case; (2) the point-wise maximum velocity increases with the turbulent friction coefficient in the synthetic case, but the relationship is vague in Acheron rock avalanche.
+
+Figures \ref{fig:simple_vector} and \ref{fig:acheron_vector} show the comparison of spatial distribution of maximum flow height from synthetic case and Acheron rock avalanche, respectively. Results given in the figures, mean and standard deviation of $h_{max}$ in each cell as well as their differences, are from the PEM and MCS analyses conducted at $COV = 50\%$. A visual comparison of mean values (See figures \ref{fig:simple_vector}A -- B, and \ref{fig:acheron_vector}A -- B) look nearly identical, but the difference map shows that flow heights at the central section of the flow path in both cases are higher in MCS analysis, while the edges of the flow path have higher flow heights in the PEM analysis. Similar to the results in figures \ref{fig:synth_moment_comparison} and \ref{fig:ac_moment_comparison}, MCS produced lower standard deviation than PEM at the majority of cells, i.e approximately 200 cells out of 6600 for synthetic case, and 830 cells out of 9800 cells for Acheron rock avalanche.
+
+\section{Discussion}
+\label{sec:discussion}
+
+Risk for a single landslide scenario has three main components: the landslide hazard, the exposure of the elements at risk, and their vulnerability. Conducting a quantitative risk analysis enables the researchers or practitioners to obtain the probability of a given level of loss and the corresponding uncertainties of these components \citep{Eidsvig2014,Corominas2013}. The hazard in a model-based landslide risk assessment is generally evaluated by simulating various scenarios with an underlying physics-based computational model. A probabilistic approach to this assessment and the quantification of associated uncertainty inevitably create a computational bottleneck --- especially for large-scale applications \citep{Strauch2018,Jiang2022}. One can opt for a simple technique to quantify uncertainty, i.e. PEM in this study, to reduce the number of simulations required, or use a technique necessitating high number of simulations, for instance MCS techniques.
+
+The computational challenge of MCS has been well-recognised in the field of landslide modelling, which results from the large number of model realisations at randomly selected input values \citep{Dalbey2008, McDougall2017}. MCS can be very computationally intensive, since it typically requires tens of thousands of model runs to achieve reasonable accuracy \citep{Salciarini2017}. This is often not feasible in model-based landslide risk assessment, as a single model run may take minutes to hours. A solution to overcome this problem has been demonstrated in this study by utilising recent development of GP emulation \citep{Gu2016, Gu2018, Gu2019}. GP emulators are built for each case based on only 100 model runs. Then, MCS with 10000 randomly generated inputs is conducted using the emulators, which means no further model runs are needed. Moreover, diagnostics of built GP emulators are analysed to evaluate their performance. High $R^2$ values and low $MAPE$s and $nRMSE$s (See table \ref{tab:scalar_emulator}) suggests that the scalar emulators can be used with confidence for predictions of a singular output from an input parameter combination. All $P_\text{CI}(95\%)$ values for the vector emulators are close to 95\%, which justify their usage as a surrogate to the computational model \citep{Gu2019}. The corresponding results of GP emulation-based MCS are therefore close to results of a classical MCS, but the computational time is significantly reduced by introducing GP emulation. This demonstrates the applicability of GP emulation for uncertainty quantification of landslide run-out models. A similar methodology applied to landslide generated waves was also found promising to perform probabilistic hazard analysis based on computationally intensive models \citep{Snelling2020}.
+
+Comparative studies in landslide research showed that similar mean values of the QoI can obtained with PEM or MCS \citep{Przewlocki2019,Tsai2015}. As shown in figures \ref{fig:synth_moment_comparison} and \ref{fig:ac_moment_comparison}, when an aggregated (e.g. impact area, deposit area, deposit volume) or point-wise (velocity and height at a predetermined coordinate) output is calculated, PEM and MCS yielded similar expectancies (mean values) in this study. In addition, both PEM and MCS lead to similar variance values for relatively low COV, i.e. 10\% and 25\%. This implies that if one only aims at computing low-order moments in comparative topographic settings, PEM can achieve reasonable results \citep{Fanelli2018}. PEM is particularly computationally appealing for low-dimensional problems due to the requirement of 2$^n$ realisations, where $n$ is the dimension of the input parameter space. However, as pointed out by \citet{Christian2002}, caution should be used in approximating skewness or other higher order moments based on PEM. This is supported by the large difference between PEM- and MCS-based skewness results as shown in figures \ref{fig:synth_moment_comparison} and \ref{fig:ac_moment_comparison}. \citet{Christian2002} also pointed out that the results deviate significantly, when the $COV$ of uncertain inputs is large, which is confirmed by the large difference between the variance computed by PEM and MCS in the cases of $COV=50\%$ as shown in figure \ref{fig:synth_moment_comparison} and \ref{fig:ac_moment_comparison}. Comparing figure \ref{fig:synth_moment_comparison} and figure \ref{fig:ac_moment_comparison}, it can be seen that the complexity of topography, which refers to the real topography of Acheron rock avalanche in comparison to the parabolic slope of the synthetic case, seems to have limited impact on the general trend of moments based on PEM and MCS, especially mean and variance. It may imply the transferability of the trends described above to different topographies.
+
+When input uncertainty is high and the input parameter space is high-dimensional, MCS is clearly favourable over PEM to compute desired statistics of the output of interest. The benefit of GP-integrated MCS is that it can not only compute the desired statistics, but it also provides the PDF \citep{Marin2020}. \citet{Cepeda2013} recommends a stochastic approach for uncertainty quantification such as MCS to be part of the routine of any landslide hazard risk assessment, and \citet{Hussin2012} denotes the frequency distributions of model outputs important as a first step to assess the spatial probability in future debris flow hazard assessments. The workflow of GP emulation-based uncertainty quantification in this study is therefore expected to improve landslide risk assessment. It should be noted that the number of model runs to train GP emulators are effected by the dimension of input parameter space even though the number of model runs of MCS is independent. Due to this limitation, the gain of computational efficiency by using GP emulation decreases with increasing dimension of input parameter space. If the dimension is too high, other emulation techniques or dimension reduction can be considered \citep{Liu2017}.
+
+Histograms plotted in figures \ref{fig:simple_mcs3} and \ref{fig:acheron_mcs3} can be used to infer on the complexity of the output functions, see equation \ref{eq:model}. Input parameters were assumed to be normally distributed in MCS analysis. It can be seen that the deposit volume (see figures \ref{fig:simple_mcs3}C and \ref{fig:acheron_mcs3}C) is the only parameter that has the shape of the truncated normal distribution with nearly no skewness. Other scalar outputs result in skewed and even bi-modal distributions that clearly deviate from the initial Gaussian distribution of the corresponding input parameter. Both cases show a nearly perfect correlation between deposit and release volume with no effects of the friction coefficient indicating parameter-independent mass conservation. It should be noted that the deposit volume was calculated considering cells in which height exceeded 0.1 m at the last simulation time step. As there was no stopping criteria defined and no entrainment was considered, the deposit volume was nearly equal to the release volume. Highly linear function of deposit volume and release volume translates into the deposit volume having a Gaussian distribution, as the linear transformation of a Gaussian distribution is also a Gaussian distribution. However, the non-linearity of the other functions that can be used the express the scalar outputs --- except deposit volume --- results in distributions different than those of the input parameters. For example, \citet{Cepeda2013} fitted Gamma distributions for flow height and velocity in two different cases.
+
+Patterns observed in figures \ref{fig:simple_vector}C and \ref{fig:acheron_vector}C can be explained by analysing the effects of input variables on the general shape of the flow path. Hence, the simulation in a synthetic topography is an ideal example due to its simplicity. As explained in section \ref{sec:res_sims} and shown in figure \ref{fig:simple_dem}A, the flow path of the synthetic case can be described as a concentrated central flow superposed by lateral spread at the toe of the slope. It can be seen in figure \ref{fig:simple_vector}A that the mean flow height has two pronounced \textit{dents} in its spatial distribution obtained with PEM. These correspond to the initiation of the lateral spread at different configurations of the input variables are considered. More specifically, PEM analysis is run only at few discrete values in parameter space chosen at a distance of one standard deviation away from the mean. When the friction coefficient is chosen at a $COV=50\%$ with a mean of 0.16, PEM simulations are characterised by a lateral spread very early in the flow path, or a lateral spread that kicks in much further downstream. Therefore, the \textit{dents} in the maximum flow height map (See figure \ref{fig:simple_vector}A) is a direct consequence of the coarse discretisation of the parameter space in the PEM approach. In contrast, MCS yields a homogeneously distributed maximum flow height map at the toe of the slope as expected in this almost linear setting. As a consequence, flow heights at the upper sections of the lateral spread are higher in PEM, whereas MCS yields higher values at the mid-section of the lateral spread (See figure \ref{fig:simple_vector}C).
+
+To recognise patterns between the location ($x_{L}$) and the magnitude ($L_{max}$) of the maximum lateral spread with the input variables, linear regression analysis was conducted. Table \ref{tab:corr} shows that the the location is controlled dominantly by the dry-Coulomb friction coefficient with a negative correlation, i.e. higher the friction coefficient earlier the lateral spread starts, and how much the flow spreads in $y$-axis is mostly controlled by the release volume, even though the friction coefficients affect to a certain extent.
+
+\section{Conclusions}
+
+Uncertainty quantification is a computationally demanding task for designing and developing a model-based landslide risk assessment. Classical MCS is often computationally infeasible due to the large number of required forward evaluations of the computational model. It has been demonstrated that GP emulation-based MCS can greatly improve the computational efficiency which makes GP-integrated MCS applicable for landslide run-out modelling. One clear advantage of using GP emulation-based MCS is the ability to sample parameter uncertainty in a dense way, as evaluation time of the forward simulation is no longer a computational bottleneck. As a consequence, the output's probability distribution reflecting the propagated uncertainty is captured at high accuracy and provides additional information about skewness and possible multi-modality. In contrast to this PEM provides only limited information on the output's probability distribution. A comparative study between PEM and GP emulation-based MCS has been conducted based on the three moments of the probability distribution, i.e. mean, variance, and skewness. The simpler approach, PEM, yielded a similar expectancy values to GP emulation-based MCS. However, PEM and MCS differed in higher order moments, such as variances and skewness, hence also in the respective spatial distribution of the flow path, and the subsequent hazard map. This finding is of high practical relevance: While a computationally cheap PEM based workflow predicts the mean of a probabilistic landslide risk assessment well, it is in general cases not suitable to assess the reliability of the prediction, for instance in the sense of a probabilistic simulation's standard deviation. The latter requires a MCS approach, which often is computationally infeasible. GP-emulated MCS overcome this limitations by introducing a surrogate model trained based on an empirical error control. It can be suggested that highly uncertain and high-dimensional input parameter spaces, e.g. complex topographies, advanced material models, models with empirical parameters, inevitably requires an uncertainty quantification workflow that is able to account for non-Gaussian, potentially multi-modal distributions. It should be noted that the gain in compute time by using GP emulation critically depends on the computational effort needed to train the GP emulator. This means that computational resources significantly increase, as the dimension of the input parameter space increases. Alternative techniques will have to be incorporated if the input dimension is too high.
+
+\section*{Conflict of Interest Statement}
+The authors declare that the research was conducted in the absence of any commercial or financial relationships that could be construed as a potential conflict of interest.
+
+\section*{Author Contributions}
+Contributions are defined according to CRediT author statement. AY: Conceptualisation, Methodology, Software, Formal analysis, Investigation, Writing - Original Draft, Writing - Review \& Editing, Visualization. HZ: Methodology, Software, Formal analysis, Investigation, Writing - Original Draft, Writing - Review \& Editing. JK: Conceptualisation, Methodology, Writing - Review \& Editing, Supervision, Funding acquisition.
+
+
+\section*{Funding}
+This work was partially funded by Deutsche Forschungsgemeinschaft (DFG) within the framework of the research project \textit{OptiData}: Improving the Predictivity of Simulating Natural Hazards due to Mass Movements – Optimal Design and Model Selection (Project no. \href{https://gepris.dfg.de/gepris/projekt/441527981?language=en}{441527981}).
+
+\section*{Acknowledgements}
+The authors would like to thank Prof. Florian Amann, whose comments initiated a discussion which led to preparation of this manuscript.
+
+\section*{Data Availability Statement}
+The datasets generated for this study can be found on Figshare as a collection titled "Uncertainty quantification in landslide run-out simulations" (doi: \href{https://doi.org/10.6084/m9.figshare.c.6172702}{10.6084/m9.figshare.c.6172702}). General workflow can be accessed as a Python package in a compressed format hosted on Figshare (doi: \href{https://doi.org/10.6084/m9.figshare.20730871}{10.6084/m9.figshare.20730871}), also as a Git repository (url: \href{https://github.com/yildizanil/frontiers_yildizetal}{yildizanil/frontiers\_yildizetal}).
+
+\bibliographystyle{Frontiers-Harvard} 
+\bibliography{yildiz_et_al_2022}
+
+\clearpage
+\begin{figure}
+    \centering
+    \includegraphics{figures/fig1.eps}
+    \caption{(A) Maximum flow height and (B) deposit height from a simulation of the synthetic case.}
+    \label{fig:simple_dem}
+\end{figure}
+\clearpage
+
+\begin{figure}
+    \centering
+    \includegraphics{figures/fig2.eps}
+    \caption{(A) Maximum flow height and (B) deposit height from a simulation of Acheron rock avalanche.}
+    \label{fig:acheron_dem}
+\end{figure}
+\clearpage
+
+\begin{figure}
+    \centering
+    \includegraphics{figures/fig3.eps}
+    \caption{Three moments (mean, variance and skewness) of (A) impact area (in x10$^6$ m$^2$), (B) deposit area (in x10$^6$ m$^2$), (C) deposit volume (in x10$^6$ m$^3$), (D) maximum flow velocity (in m/s) and (E) maximum flow height (in m) at $\left (x,y \right) =$ (1000,2000) obtained from synthetic case with Monte Carlo simulations (MCS) and point estimate method (PEM)}
+    \label{fig:synth_moment_comparison}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics{figures/fig4.eps}
+    \caption{Three moments (mean, variance and skewness) of (A) impact area (in x10$^6$ m$^2$), (B) deposit area (in x10$^6$ m$^2$), (C) deposit volume (in x10$^6$ m$^3$), (D) maximum flow velocity (in m/s) and (E) maximum flow height (in m) at $\left (x,y \right) =$ (1490100, 5204100) obtained from Acheron rock avalanche with Monte Carlo simulations (MCS) and point estimate method (PEM)}
+    \label{fig:ac_moment_comparison}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics{figures/fig5.eps}
+    \caption{Relationships and histograms of (A) impact area, (B) deposit area, (C) deposit volume, (D) maximum flow velocity and (E) maximum flow height at $\left (x,y \right) =$ (1000,2000) from synthetic case with uncertain parameters used in the Monte Carlo analysis with coefficient of variation of 50\%.}
+    \label{fig:simple_mcs3}
+\end{figure}
+\clearpage
+
+\begin{figure}
+    \centering
+    \includegraphics{figures/fig6.eps}
+    \caption{Relationships and histograms of (A) impact area, (B) deposit area, (C) deposit volume, (D) maximum flow velocity and (E) maximum flow height at $\left (x,y \right) =$ (1490100, 5204100) from Acheron rock avalanche with uncertain parameters used in the Monte Carlo analysis with coefficient of variation of 50\%.}
+    \label{fig:acheron_mcs3}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics{figures/fig7.eps}
+    \caption{Spatial distribution of mean and standard deviations of maximum flow height ($h_{max}$) from synthetic case obtained with (A, D) Point Estimate Method (PEM) and (B, E) Monte Carlo Simulations (MCS) at 50\% coefficient of variation. Differences of (C) mean value and (F) standard deviation are plotted by subtracting MCS results from PEM results.}
+    \label{fig:simple_vector}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics{figures/fig8.eps}
+    \caption{Spatial distribution of mean and standard deviations of maximum flow height ($h_{max}$) from Acheron rock avalanche obtained with (A, D) Point Estimate Method (PEM) and (B, E) Monte Carlo Simulations (MCS) at 50\% coefficient of variation. Differences of (C) mean value and (F) standard deviation are plotted by subtracting MCS results from PEM results.}
+    \label{fig:acheron_vector}
+\end{figure}
+
+\clearpage
+
+\begin{table}
+\centering
+\caption{Mean and standard deviation values of the input variables used in the Point Estimate Method (PEM) analysis of the synthetic case and Acheron rock avalanche. Same values of Dry-Coulomb and turbulent friction coefficients are used for both cases.}
+\hspace{11pt}
+\label{tab:pem}
+\begin{tabular}{@{}llcccccc@{}}
+\toprule
+ &
+  \multicolumn{1}{c}{\multirow{2}{*}{\textbf{Unit}}} &
+  \multicolumn{2}{c}{\textbf{\begin{tabular}[c]{@{}c@{}}PEM 1\\ (COV = 10\%)\end{tabular}}} &
+  \multicolumn{2}{c}{\textbf{\begin{tabular}[c]{@{}c@{}}PEM 2\\ (COV = 25\%)\end{tabular}}} &
+  \multicolumn{2}{c}{\textbf{\begin{tabular}[c]{@{}c@{}}PEM 3\\ (COV = 50\%)\end{tabular}}} \\
+ &
+  \multicolumn{1}{c}{} &
+  \textbf{Mean} &
+  \textbf{Std. dev.} &
+  \textbf{Mean} &
+  \textbf{Std. dev.} &
+  \textbf{Mean} &
+  \textbf{Std. dev.} \\ \midrule
+\textbf{Dry-Coulomb friction coefficient} &
+  - &
+  0.160 &
+  0.016 &
+  0.160 &
+  0.040 &
+  0.160 &
+  0.080 \\
+\textbf{Turbulent friction coefficient} &
+  m/s$^2$ &
+  1150 &
+  115.0 &
+  1150 &
+  287.5 &
+  1150 &
+  575.0 \\
+\textbf{Release volume - Synthetic} &
+  x 10$^6$ m$^3$ &
+  1.432 &
+  0.143 &
+  1.432 &
+  0.358 &
+  1.432 &
+  0.716 \\
+\textbf{Release volume - Acheron} &
+  x 10$^6$ m$^3$ &
+  6.40 &
+  0.64 &
+  6.40 &
+  1.60 &
+  6.40 &
+  3.20 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\clearpage
+
+\begin{table}
+\centering
+\caption{Coefficient of determination, $R^2$, mean absolute percentage error, $MAPE$, and normalised root mean squared error $nRMSE$ for the emulators trained with scalar outputs from synthetic case and Acheron rock avalanche.}
+\vspace{11pt}
+\label{tab:scalar_emulator}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+\multirow{2}{*}{\textbf{Output}} &
+  \multicolumn{3}{c}{\textbf{Synthetic case}} &
+  \multicolumn{3}{c}{\textbf{Acheron rock avalanche}} \\
+ &
+  \textbf{$R^2$ {[}-{]}} &
+  \textbf{$MAPE$ {[}\%{]}} &
+  \textbf{$nRMSE$ {[}\%{]}} &
+  \textbf{$R^2$ {[}-{]}} &
+  \textbf{$MAPE$ {[}\%{]}} &
+  \textbf{$nRMSE$ {[}\%{]}} \\ \midrule
+\textbf{Impact area}      & 0.999 & 0.468 & 0.606 & 0.997 & 1.294 & 1.900 \\
+\textbf{Deposit area}     & 0.996 & 0.864 & 1.173 & 0.988 & 2.530 & 3.100 \\
+\textbf{Deposit volume}   & 0.999 & 0.553 & 0.717 & 0.999 & 0.541 & 0.752 \\
+\textbf{Maximum velocity} & 0.999 & 0.592 & 0.731 & 0.967 & 2.802 & 3.473 \\
+\textbf{Maximum height}   & 0.989 & 1.609 & 1.996 & 0.965 & 2.084 & 2.828 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\clearpage
+\begin{table}
+\centering
+\caption{Correlation of input variables with location ($x_L$) and the length ($L_{max}$) of maximum lateral spread in synthetic case.}
+\label{tab:corr}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+                                          & \textbf{$x_L$}           & \textbf{$L_{max}$} \\ \midrule
+\textbf{Dry-Coulomb friction coefficient} & 0.99***                 & 0.33***         \\
+\textbf{Turbulent friction coefficient}   & \textit{No correlation} & 0.50***         \\
+\textbf{Release volume}                   & \textit{No correlation} & 0.80***         \\ \midrule
+\multicolumn{3}{l}{\textit{*** p \textless 0.001}}                                   
+\end{tabular}
+\end{table}
+
+\end{document}
