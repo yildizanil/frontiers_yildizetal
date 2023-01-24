@@ -80,5 +80,5 @@ fig.set_rasterized(True)
 ax1.set_rasterized(True)
 ax2.set_rasterized(True)
 
-plt.savefig('figures/PDF/fig1.pdf', format='pdf', bbox_inches='tight', facecolor='w')
-plt.savefig('figures/EPS/fig1.eps', format='eps', bbox_inches='tight', facecolor='w')
+plt.savefig('figures/PDF/fig1.pdf', format='pdf', bbox_inches='tight', facecolor='w', dpi=1000)
+plt.savefig('figures/JPEG/fig1.jpeg', format='jpeg', bbox_inches='tight', facecolor='w', dpi=1200)

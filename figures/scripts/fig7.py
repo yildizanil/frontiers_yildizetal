@@ -23,12 +23,12 @@ synth_pem = Simulations('synth_pem').create_vector(
 )
 
 pem3_mean = np.zeros((1, synth.rows * synth.cols))
-pem3_mean[:, list(synth.vector.columns)] = synth_pem[0][16:24].mean(axis=0)
+pem3_mean[:,synth.valid_cols.nonzero()] = synth_pem[0][16:24].mean(axis=0)
 pem3_mean = pem3_mean.reshape(synth.rows, synth.cols)
 pem3_mean_ma = np.ma.masked_where(pem3_mean < 0.1, pem3_mean, copy=True)
 
 pem3_sd = np.zeros((1, synth.rows * synth.cols))
-pem3_sd[:, list(synth.vector.columns)] = synth_pem[0][16:24].std(axis=0)
+pem3_sd[:,synth.valid_cols.nonzero()] = synth_pem[0][16:24].std(axis=0)
 pem3_sd = pem3_sd.reshape(synth.rows, synth.cols)
 pem3_sd_ma = np.ma.masked_where(pem3_mean < 0.1, pem3_sd, copy=True)
 
@@ -170,5 +170,5 @@ ax4.set_rasterized(True)
 ax5.set_rasterized(True)
 ax6.set_rasterized(True)
 
-plt.savefig('figures/EPS/fig7.eps', format='eps', bbox_inches='tight', facecolor='w')
-plt.savefig('figures/PDF/fig7.pdf', format='pdf', bbox_inches='tight', facecolor='w')
+plt.savefig('figures/PDF/fig7.pdf', format='pdf', bbox_inches='tight', facecolor='w', dpi=1000)
+plt.savefig('figures/JPEG/fig7.jpeg', format='jpeg', bbox_inches='tight', facecolor='w', dpi=1200)
