@@ -26,12 +26,12 @@ ac_pem = Simulations('acheron_pem').create_vector(
 )
 
 pem3_mean = np.zeros((1, ac.rows * ac.cols))
-pem3_mean[:, list(ac.vector.columns)] = ac_pem[0][16:24].mean(axis=0)
+pem3_mean[:,ac.valid_cols.nonzero()] = ac_pem[0][16:24].mean(axis=0)
 pem3_mean = pem3_mean.reshape(ac.rows, ac.cols)
 pem3_mean_ma = np.ma.masked_where(pem3_mean < 0.1, pem3_mean, copy=True)
 
 pem3_sd = np.zeros((1, ac.rows * ac.cols))
-pem3_sd[:, list(ac.vector.columns)] = ac_pem[0][16:24].std(axis=0)
+pem3_sd[:,ac.valid_cols.nonzero()] = ac_pem[0][16:24].std(axis=0)
 pem3_sd = pem3_sd.reshape(ac.rows, ac.cols)
 pem3_sd_ma = np.ma.masked_where(pem3_mean < 0.1, pem3_sd, copy=True)
 

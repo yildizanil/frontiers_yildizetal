@@ -45,7 +45,7 @@ class ScalarEmulators:
         if not isinstance(name,str):
             raise TypeError('name must be a string')
         if name not in ['synth', 'acheron']:
-            raise Exception('Invalid name. It must be synth, synth_validate, acheron, or acheron_validate')
+            raise Exception('Invalid name. It must be synth or acheron')
         if not isinstance(threshold, (int, float)):
             raise TypeError('threshold must be a number')
         if threshold < 0:
@@ -60,7 +60,7 @@ class ScalarEmulators:
         self.loc_x, self.loc_y = loc_x, loc_y
         
         self.input_train = data.load_input(self.name, 'emulator')
-        self.input_validate = data.load_input((name + '_validate'), 'emulator')
+        self.input_validate = data.load_input((name + '_validatation'), 'emulator')
         
         self.output = self.sims.curate_scalars(threshold=threshold, loc_x=loc_x, loc_y=loc_y)
 
@@ -172,7 +172,7 @@ class VectorEmulators:
             self.bounds = src.bounds
  
         self.vector, self.valid_cols = self.sims.create_vector(qoi=qoi, threshold=threshold)
-        self.vector_validate, self.valid_cols = Simulations((self.name + '_validate')).create_vector(qoi=self.qoi, threshold=self.threshold, valid_cols=self.valid_cols)
+        self.vector_validate, self.valid_cols = Simulations((self.name + '_validation')).create_vector(qoi=self.qoi, threshold=self.threshold, valid_cols=self.valid_cols)
         
         self.input_train = data.load_input(self.name, 'emulator')
         self.input_validate = data.load_input((name + '_validate'), 'emulator')

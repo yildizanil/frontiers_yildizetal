@@ -44,20 +44,20 @@ class Simulations:
             
         Raises:
             TypeError: name must be a string
-            Exception: Invalid set of simulations. It must be synth, synth_pem, synth_validate, acheron, acheron_pem or acheron_validate
+            Exception: Invalid set of simulations. It must be synth, synth_pem, synth_validatation, acheron, acheron_pem or acheron_validatation
         """
         if not isinstance(name, str):
             raise TypeError('name must be a string')
         if name not in [
             'synth',
             'synth_pem',
-            'synth_validate',
+            'synth_validation',
             'acheron',
             'acheron_pem',
-            'acheron_validate',
+            'acheron_validation',
         ]:
             raise Exception(
-                'Invalid set of simulations. It must be synth, synth_pem, synth_validate, acheron, acheron_pem or acheron_validate'
+                'Invalid set of simulations. It must be synth, synth_pem, synth_validation, acheron, acheron_pem or acheron_validation'
             )
         self.name = name
         self.data_import = data.FigshareData(self.name)
