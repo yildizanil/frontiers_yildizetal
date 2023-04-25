@@ -60,7 +60,7 @@ class ScalarEmulators:
         self.loc_x, self.loc_y = loc_x, loc_y
         
         self.input_train = data.load_input(self.name, 'emulator')
-        self.input_validate = data.load_input((name + '_validatation'), 'emulator')
+        self.input_validate = data.load_input(self.name , 'validation_emulator')
         
         self.output = self.sims.curate_scalars(threshold=threshold, loc_x=loc_x, loc_y=loc_y)
 
@@ -175,7 +175,7 @@ class VectorEmulators:
         self.vector_validate, self.valid_cols = Simulations((self.name + '_validation')).create_vector(qoi=self.qoi, threshold=self.threshold, valid_cols=self.valid_cols)
         
         self.input_train = data.load_input(self.name, 'emulator')
-        self.input_validate = data.load_input((name + '_validate'), 'emulator')
+        self.input_validate = data.load_input(self.name, 'validation_emulator')
         
         with rasterio.open(self.sims.data_import.raster_link(qoi)) as src:
             self.size = src.count

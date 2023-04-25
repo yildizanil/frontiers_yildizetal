@@ -68,10 +68,10 @@ def load_input(name:str, analysis:str) -> np.ndarray:
         raise TypeError('name should be a string')
     if not isinstance(analysis, str):
         raise TypeError('analysis should be a string')
-    if not name in ['synth', 'acheron', 'synth_validate', 'acheron_validate']:
-        raise Exception('Invalid name. It must be synth, synth_validate, acheron, or acheron_validate')
-    if not analysis in ['mcs1', 'mcs2', 'mcs3', 'emulator']:
-        raise Exception('Invalid analysis. It must be mcs1, mcs2, mcs3 or emulator')
+    if not name in ['synth', 'acheron']:
+        raise Exception('Invalid name. It must be synth or acheron')
+    if not analysis in ['mcs1', 'mcs2', 'mcs3', 'emulator','validation_emulator']:
+        raise Exception('Invalid analysis. It must be mcs1, mcs2, mcs3, emulator, or validation_emulator')
     
     path = 'utilities/input/' + name + '_' + analysis + '.csv'
     filepath = resource_filename('frontiers_yildizetal', path)
